@@ -1,0 +1,190 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3726142934422053818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5929811036404409777}
+  - component: {fileID: 3029464123663590254}
+  m_Layer: 0
+  m_Name: pfb_unit_animal_baby_boar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5929811036404409777
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3726142934422053818}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1201553173165706683}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!320 &3029464123663590254
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3726142934422053818}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 492075a7451a0433b8283bbad79823e2, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 1
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: -5798860261442485800, guid: 29fdf57a4a4cb44e3bd503a363d1a49e, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: 6242536901853844148, guid: 29fdf57a4a4cb44e3bd503a363d1a49e, type: 2}
+    value: {fileID: 5432049372355188157}
+  - key: {fileID: -1594923597537630399, guid: 96abd02943ab6464cb362c4e98cd85ba, type: 2}
+    value: {fileID: 5432049372355188157}
+  - key: {fileID: -3416894249007640380, guid: 96abd02943ab6464cb362c4e98cd85ba, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: 88173140164231277, guid: 492075a7451a0433b8283bbad79823e2, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: -1284584448844437401, guid: 492075a7451a0433b8283bbad79823e2, type: 2}
+    value: {fileID: 5432049372355188157}
+  - key: {fileID: 6251634808420969775, guid: c46d42c6f09f64eecb731db9b70aac1c, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -5990527540280003246, guid: c46d42c6f09f64eecb731db9b70aac1c, type: 2}
+    value: {fileID: 0}
+  - key: {fileID: -5798860261442485800, guid: f87366785e6be4c1fb3c8499196fca3d, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: 6242536901853844148, guid: f87366785e6be4c1fb3c8499196fca3d, type: 2}
+    value: {fileID: 5432049372355188157}
+  - key: {fileID: -1594923597537630399, guid: 7440d2ed085bd46f7bbddc9ddd8ae77f, type: 2}
+    value: {fileID: 5432049372355188157}
+  - key: {fileID: -3416894249007640380, guid: 7440d2ed085bd46f7bbddc9ddd8ae77f, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: 88173140164231277, guid: 64159f3689577492aa8fe017ba0f43ee, type: 2}
+    value: {fileID: 9143710302946598840}
+  - key: {fileID: -1284584448844437401, guid: 64159f3689577492aa8fe017ba0f43ee, type: 2}
+    value: {fileID: 5432049372355188157}
+  m_ExposedReferences:
+    m_References: []
+--- !u!1 &9143710302946598840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1201553173165706683}
+  - component: {fileID: 886769505673227602}
+  - component: {fileID: 5432049372355188157}
+  m_Layer: 0
+  m_Name: baby_boar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1201553173165706683
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9143710302946598840}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.9, y: 1.9, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5929811036404409777}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &886769505673227602
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9143710302946598840}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 2.56, y: 2.56}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!95 &5432049372355188157
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9143710302946598840}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3c008dbc6cb3348639daf9217aab785d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
