@@ -23,6 +23,7 @@ public sealed class TileView : MonoBehaviour
     private TileType tilePrefabType = TileType.Empty;
     private SpriteRenderer[] tilePrefabRenderers;
     private Color[] tilePrefabColors;
+    private Sprite[] tilePrefabSprites;
 
     public Vector2Int Coordinate => cell != null ? cell.coordinate : Vector2Int.zero;
     public TileType BlockType => cell != null ? cell.tileType : TileType.Empty;
@@ -234,12 +235,13 @@ public sealed class TileView : MonoBehaviour
 
     private void UpdateTileVisual()
     {
+        var tileSprite = board.GetTileSprite(cell);
         var prefab = board.GetTilePrefab(cell.tileType);
         if (prefab == null || cell.tileType == TileType.Empty)
         {
             ClearTilePrefab();
             tileRenderer.enabled = true;
-            tileRenderer.sprite = board.GetTileSprite(cell.tileType);
+            tileRenderer.sprite = tileSprite;
             tileRenderer.color = board.GetTint(cell.tileType);
             return;
         }
@@ -258,6 +260,7 @@ public sealed class TileView : MonoBehaviour
         }
 
         RestoreTilePrefabColors();
+        ApplyTilePrefabSprite(tileSprite);
     }
 
     private void ClearTilePrefab()
@@ -265,6 +268,7 @@ public sealed class TileView : MonoBehaviour
         tilePrefabType = TileType.Empty;
         tilePrefabRenderers = null;
         tilePrefabColors = null;
+        tilePrefabSprites = null;
 
         if (tilePrefabInstance == null)
         {
@@ -291,13 +295,16 @@ public sealed class TileView : MonoBehaviour
         if (tilePrefabRenderers == null)
         {
             tilePrefabColors = null;
+            tilePrefabSprites = null;
             return;
         }
 
         tilePrefabColors = new Color[tilePrefabRenderers.Length];
+        tilePrefabSprites = new Sprite[tilePrefabRenderers.Length];
         for (var i = 0; i < tilePrefabRenderers.Length; i++)
         {
             tilePrefabColors[i] = tilePrefabRenderers[i].color;
+            tilePrefabSprites[i] = tilePrefabRenderers[i].sprite;
         }
     }
 
@@ -314,6 +321,27 @@ public sealed class TileView : MonoBehaviour
             {
                 tilePrefabRenderers[i].color = tilePrefabColors[i];
             }
+        }
+    }
+
+    private void ApplyTilePrefabSprite(Sprite sprite)
+    {
+        if (tilePrefabRenderers == null || tilePrefabSprites == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < tilePrefabRenderers.Length; i++)
+        {
+            if (tilePrefabRenderers[i] != null)
+            {
+                tilePrefabRenderers[i].sprite = tilePrefabSprites[i];
+            }
+        }
+
+        if (cell.tileType == TileType.Dirt && cell.dirt3x3Boosted && sprite != null && tilePrefabRenderers.Length > 0 && tilePrefabRenderers[0] != null)
+        {
+            tilePrefabRenderers[0].sprite = sprite;
         }
     }
 

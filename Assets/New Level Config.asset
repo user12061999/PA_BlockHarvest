@@ -13,43 +13,77 @@ MonoBehaviour:
   m_Name: New Level Config
   m_EditorClassIdentifier: 
   playableCoordinates:
-  - {x: 2, y: 0}
-  - {x: 3, y: 0}
-  - {x: 4, y: 0}
-  - {x: 1, y: 1}
-  - {x: 2, y: 1}
-  - {x: 3, y: 1}
-  - {x: 4, y: 1}
-  - {x: 5, y: 1}
   - {x: 1, y: 2}
   - {x: 2, y: 2}
   - {x: 3, y: 2}
   - {x: 4, y: 2}
-  - {x: 5, y: 2}
-  - {x: 6, y: 2}
-  - {x: 0, y: 3}
   - {x: 1, y: 3}
   - {x: 2, y: 3}
-  - {x: 0, y: 4}
+  - {x: 3, y: 3}
+  - {x: 4, y: 3}
   - {x: 1, y: 4}
   - {x: 2, y: 4}
-  - {x: 0, y: 5}
+  - {x: 3, y: 4}
+  - {x: 4, y: 4}
   - {x: 1, y: 5}
   - {x: 2, y: 5}
   - {x: 3, y: 5}
   - {x: 4, y: 5}
-  - {x: 5, y: 5}
-  - {x: 6, y: 5}
-  - {x: 1, y: 6}
-  - {x: 2, y: 6}
-  - {x: 3, y: 6}
-  - {x: 4, y: 6}
-  - {x: 5, y: 6}
-  - {x: 2, y: 7}
-  - {x: 3, y: 7}
-  - {x: 4, y: 7}
-  wheatGoal: 15
-  meatGoal: 12
-  flowerGoal: 8
-  fishGoal: 10
+  wheatGoal: 10
+  meatGoal: 0
+  flowerGoal: 0
+  fishGoal: 0
   maxPlacements: 12
+  useCustomBlockSpawns: 1
+  blockSpawnTurns:
+  - blocks:
+    - name: Custom 5 Tile Block
+      positions:
+      - {x: 0, y: 2}
+      - {x: 0, y: 1}
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      - {x: 2, y: 0}
+      tileTypes: 0200000002000000020000000200000002000000
+      resourceTypes: 0000000000000000000000000000000000000000
+    - name: Custom 5 Tile Block
+      positions:
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      - {x: 2, y: 0}
+      - {x: 2, y: 1}
+      - {x: 2, y: 2}
+      tileTypes: 0200000002000000020000000200000002000000
+      resourceTypes: 0000000000000000000000000000000000000000
+    - name: Custom 5 Tile Block
+      positions:
+      - {x: 2, y: 2}
+      - {x: 1, y: 2}
+      - {x: 0, y: 2}
+      - {x: 0, y: 1}
+      - {x: 0, y: 0}
+      tileTypes: 0200000002000000020000000200000002000000
+      resourceTypes: 0000000000000000000000000000000000000000
+  - blocks:
+    - name: Custom 3 Tile Block
+      positions:
+      - {x: 0, y: 1}
+      - {x: 1, y: 1}
+      - {x: 1, y: 0}
+      tileTypes: 030000000300000003000000
+      resourceTypes: 000000000000000000000000
+    - name: Custom 4 Tile Block
+      positions:
+      - {x: 1, y: 1}
+      - {x: 0, y: 1}
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      tileTypes: 02000000020000000200000002000000
+      resourceTypes: 00000000000000000000000000000000
+    - name: Custom 3 Tile Block
+      positions:
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      - {x: 2, y: 0}
+      tileTypes: 030000000300000003000000
+      resourceTypes: 000000000000000000000000

@@ -39,6 +39,11 @@ public sealed class BoardManager : MonoBehaviour
     }
 
     [SerializeField] private bool createVisuals = true;
+    [Header("Camera Layout")]
+    [SerializeField] private bool centerOnCamera = true;
+    [SerializeField] private bool centerGameplayWithTray = true;
+    [SerializeField] private Vector2 cameraViewportPosition = new Vector2(0.5f, 0.5f);
+    [SerializeField] private Vector2 cameraCenterOffset;
     [Header("Cell Layout")]
     [SerializeField] private float cellSize = 0.9f;
     [SerializeField] private float cellVisualScale = 1f;
@@ -50,6 +55,7 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private Sprite emptySprite;
     [SerializeField] private Sprite grassSprite;
     [SerializeField] private Sprite dirtSprite;
+    [SerializeField] private Sprite dirt3x3Sprite;
     [SerializeField] private Sprite waterSprite;
     [SerializeField] private Sprite wheatSprite;
     [SerializeField] private Sprite flowerSprite;
@@ -60,6 +66,7 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private Sprite pigSprite;
     [SerializeField] private GameObject yieldEffectPrefab;
     [SerializeField] private GameObject clearResourceEffectPrefab;
+    [SerializeField] private GameObject dirt3x3EffectPrefab;
     [SerializeField] private AudioClip yieldAudioClip;
     [SerializeField] private AudioClip animalActionAudioClip;
     [SerializeField] private float boarIdleScale = 0.06f;
@@ -85,7 +92,29 @@ public sealed class BoardManager : MonoBehaviour
     public Vector2 BoardVisualSize => new Vector2(
         (Width - 1) * CellStride + CellVisualSize,
         (Height - 1) * CellStride + CellVisualSize);
+    public Vector2 VisibleBoardVisualSize
+    {
+        get
+        {
+            Vector2Int min;
+            Vector2Int max;
+            GetVisibleBounds(out min, out max);
+            return new Vector2(
+                (max.x - min.x) * CellStride + CellVisualSize,
+                (max.y - min.y) * CellStride + CellVisualSize);
+        }
+    }
+
+    public Vector3 VisibleBoardCenterWorld => transform.TransformPoint(GetVisibleCenterLocal());
     public CellData[,] Cells => cells;
+
+    private void LateUpdate()
+    {
+        if (Application.isPlaying)
+        {
+            CenterOnCamera();
+        }
+    }
 
     public void SetCellSize(float size)
     {
@@ -127,7 +156,53 @@ public sealed class BoardManager : MonoBehaviour
 
         if (createVisuals)
         {
+            CenterOnCamera();
             BuildVisuals();
+        }
+    }
+
+    private void CenterOnCamera()
+    {
+        if (!centerOnCamera)
+        {
+            return;
+        }
+
+        var mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            mainCamera = FindObjectOfType<Camera>();
+        }
+
+        if (mainCamera == null)
+        {
+            return;
+        }
+
+        var distance = Mathf.Abs(mainCamera.transform.position.z - transform.position.z);
+        var target = mainCamera.ViewportToWorldPoint(new Vector3(cameraViewportPosition.x, cameraViewportPosition.y, distance));
+        if (blockManager == null)
+        {
+            blockManager = FindObjectOfType<BlockManager>();
+        }
+
+        if (centerGameplayWithTray && blockManager != null)
+        {
+            target += blockManager.GetBoardCenterOffsetForCenteredLayout(this);
+        }
+
+        target += new Vector3(cameraCenterOffset.x, cameraCenterOffset.y, 0f);
+        target -= transform.TransformVector(GetVisibleCenterLocal());
+        target.z = transform.position.z;
+        if ((transform.position - target).sqrMagnitude < 0.000001f)
+        {
+            return;
+        }
+
+        transform.position = target;
+        if (blockManager != null)
+        {
+            blockManager.LayoutFromBoard();
         }
     }
 
@@ -251,6 +326,7 @@ public sealed class BoardManager : MonoBehaviour
         cell.resourceType = resourceType;
         cell.resourceValue = GetDefaultResourceValue(resourceType);
         cell.occupied = tileType != TileType.Empty;
+        cell.dirt3x3Boosted = false;
         UpdateVisual(cell);
         return true;
     }
@@ -476,6 +552,11 @@ public sealed class BoardManager : MonoBehaviour
             }
         }
 
+        if (clearTiles.Count > 0 && AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayClearBoard();
+        }
+
         clearBoardRoutine = clearTiles.Count > 0 ? StartCoroutine(ClearBoardRoutine(clearTiles, onResourceCleared)) : null;
         if (clearTiles.Count == 0)
         {
@@ -490,16 +571,26 @@ public sealed class BoardManager : MonoBehaviour
 
     public void PlayAnimalEat(CellData animalCell, CellData targetCell, bool returnToStart)
     {
-        PlayAnimalEat(animalCell, targetCell, returnToStart, null);
+        PlayAnimalEat(animalCell, targetCell, returnToStart, null, null);
     }
 
     public void PlayAnimalEat(CellData animalCell, CellData targetCell, bool returnToStart, Action onEat)
+    {
+        PlayAnimalEat(animalCell, targetCell, returnToStart, onEat, null);
+    }
+
+    public void PlayAnimalEat(CellData animalCell, CellData targetCell, bool returnToStart, Action onEat, Action onComplete)
     {
         if (!Application.isPlaying || animalCell == null || targetCell == null || tileViews == null)
         {
             if (onEat != null)
             {
                 onEat();
+            }
+
+            if (onComplete != null)
+            {
+                onComplete();
             }
 
             return;
@@ -509,6 +600,16 @@ public sealed class BoardManager : MonoBehaviour
         var animalRenderer = animalView != null ? animalView.ResourceRenderer : null;
         if (animalRenderer == null || animalRenderer.sprite == null)
         {
+            if (onEat != null)
+            {
+                onEat();
+            }
+
+            if (onComplete != null)
+            {
+                onComplete();
+            }
+
             return;
         }
 
@@ -521,7 +622,8 @@ public sealed class BoardManager : MonoBehaviour
             IsWaterTile(animalCell.tileType),
             IsWaterTile(targetCell.tileType),
             animationSet,
-            onEat));
+            onEat,
+            onComplete));
     }
 
     public void PlayWaterYieldEffect(Vector2Int waterCoordinate, Vector2Int resourceCoordinate)
@@ -607,6 +709,46 @@ public sealed class BoardManager : MonoBehaviour
             0f);
     }
 
+    private Vector3 GetVisibleCenterLocal()
+    {
+        Vector2Int min;
+        Vector2Int max;
+        GetVisibleBounds(out min, out max);
+        return (BoardToLocal(min) + BoardToLocal(max)) * 0.5f;
+    }
+
+    private void GetVisibleBounds(out Vector2Int min, out Vector2Int max)
+    {
+        min = Vector2Int.zero;
+        max = new Vector2Int(Width - 1, Height - 1);
+
+        if (playableCoordinates == null || playableCoordinates.Count == 0)
+        {
+            return;
+        }
+
+        var found = false;
+        for (var i = 0; i < playableCoordinates.Count; i++)
+        {
+            var coordinate = playableCoordinates[i];
+            if (coordinate.x < 0 || coordinate.x >= Width || coordinate.y < 0 || coordinate.y >= Height)
+            {
+                continue;
+            }
+
+            if (!found)
+            {
+                min = coordinate;
+                max = coordinate;
+                found = true;
+                continue;
+            }
+
+            min = Vector2Int.Min(min, coordinate);
+            max = Vector2Int.Max(max, coordinate);
+        }
+    }
+
     public Sprite GetTileSprite(TileType tileType)
     {
         var sprite = GetCustomSprite(tileType);
@@ -616,6 +758,16 @@ public sealed class BoardManager : MonoBehaviour
     public Color GetTint(TileType tileType)
     {
         return GetCustomSprite(tileType) != null ? Color.white : GetColor(tileType);
+    }
+
+    public Sprite GetTileSprite(CellData cell)
+    {
+        if (cell != null && cell.tileType == TileType.Dirt && cell.dirt3x3Boosted && dirt3x3Sprite != null)
+        {
+            return dirt3x3Sprite;
+        }
+
+        return cell != null ? GetTileSprite(cell.tileType) : GetTileSprite(TileType.Empty);
     }
 
     public GameObject GetTilePrefab(TileType tileType)
@@ -671,6 +823,78 @@ public sealed class BoardManager : MonoBehaviour
         {
             view.Render();
         }
+    }
+
+    public void ResolveDirt3x3Growth(List<Vector2Int> placedCells)
+    {
+        if (placedCells == null || placedCells.Count == 0)
+        {
+            return;
+        }
+
+        for (var i = 0; i < placedCells.Count; i++)
+        {
+            for (var dx = -1; dx <= 1; dx++)
+            {
+                for (var dy = -1; dy <= 1; dy++)
+                {
+                    TryBoostDirt3x3(placedCells[i] + new Vector2Int(dx, dy));
+                }
+            }
+        }
+    }
+
+    private void TryBoostDirt3x3(Vector2Int center)
+    {
+        if (center.x <= 0 || center.x >= Width - 1 || center.y <= 0 || center.y >= Height - 1)
+        {
+            return;
+        }
+
+        var hasNewCell = false;
+        for (var x = center.x - 1; x <= center.x + 1; x++)
+        {
+            for (var y = center.y - 1; y <= center.y + 1; y++)
+            {
+                var cell = GetCell(new Vector2Int(x, y));
+                if (cell == null || cell.tileType != TileType.Dirt)
+                {
+                    return;
+                }
+
+                hasNewCell = hasNewCell || !cell.dirt3x3Boosted;
+            }
+        }
+
+        if (!hasNewCell)
+        {
+            return;
+        }
+
+        for (var x = center.x - 1; x <= center.x + 1; x++)
+        {
+            for (var y = center.y - 1; y <= center.y + 1; y++)
+            {
+                var cell = cells[x, y];
+                cell.dirt3x3Boosted = true;
+                cell.resourceType = TileType.Wheat;
+                cell.resourceValue += 1;
+                UpdateVisual(cell);
+            }
+        }
+
+        PlayDirt3x3Effect(center);
+    }
+
+    private void PlayDirt3x3Effect(Vector2Int center)
+    {
+        if (!Application.isPlaying || dirt3x3EffectPrefab == null)
+        {
+            return;
+        }
+
+        var effect = Instantiate(dirt3x3EffectPrefab, CoordinateToWorld(center), Quaternion.identity, transform);
+        Destroy(effect, 2f);
     }
 
     private void ClearBoardImmediate(Action<TileType, int, Vector3> onResourceCleared)
@@ -736,6 +960,7 @@ public sealed class BoardManager : MonoBehaviour
         cell.resourceType = TileType.Empty;
         cell.resourceValue = 0;
         cell.occupied = false;
+        cell.dirt3x3Boosted = false;
     }
 
     private void RefreshVisuals()
@@ -762,7 +987,8 @@ public sealed class BoardManager : MonoBehaviour
         bool startsInWater,
         bool eatsInWater,
         AnimalFrameSet animationSet,
-        Action onEat)
+        Action onEat,
+        Action onComplete)
     {
         var animationObject = new GameObject("AnimalEatAnimation");
         var animationTransform = animationObject.transform;
@@ -779,7 +1005,15 @@ public sealed class BoardManager : MonoBehaviour
         sourceRenderer.enabled = false;
 
         yield return Move(animationTransform, start, target, boarTravelSeconds, animationRenderer, GetMoveFrames(animationSet, startsInWater));
-        PlayClip(animalActionAudioClip);
+        if (AudioManager.ins != null && AudioManager.ins.animalEatSound != null)
+        {
+            AudioManager.ins.PlayAnimalEat();
+        }
+        else
+        {
+            PlayClip(animalActionAudioClip);
+        }
+
         yield return PlayFrames(animationRenderer, GetEatFrames(animationSet, eatsInWater), GetFrameSeconds(animationSet), 1);
 
         if (onEat != null)
@@ -802,6 +1036,10 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         Destroy(animationObject);
+        if (onComplete != null)
+        {
+            onComplete();
+        }
     }
 
     private bool IsAnimatedAnimal(TileType resourceType)
@@ -917,7 +1155,14 @@ public sealed class BoardManager : MonoBehaviour
             Destroy(effect, 2f);
         }
 
-        PlayClip(yieldAudioClip);
+        if (AudioManager.ins != null && AudioManager.ins.resourceGainSound != null)
+        {
+            AudioManager.ins.PlayResourceGain();
+        }
+        else
+        {
+            PlayClip(yieldAudioClip);
+        }
 
         var view = GetTileView(cell.coordinate);
         if (view != null)

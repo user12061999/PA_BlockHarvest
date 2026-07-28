@@ -51,6 +51,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
         trayPosition = transform.position;
         trayScale = transform.localScale;
+        if (blockManager != null)
+        {
+            blockManager.HideTutorial();
+        }
+
         ScaleToGridCell();
         dragOffset = transform.position - ScreenToWorld(eventData) + Vector3.up * dragOffsetY;
         transform.position = ScreenToWorld(eventData) + dragOffset;
@@ -97,6 +102,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             return;
         }
 
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayInvalidDrop();
+        }
+
         ReturnToTray();
     }
 
@@ -111,6 +121,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         if (!boardManager.PlaceBlock(origin, data, out placedCells))
         {
             return false;
+        }
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayPlaceBlock();
         }
 
         if (harvestManager != null)

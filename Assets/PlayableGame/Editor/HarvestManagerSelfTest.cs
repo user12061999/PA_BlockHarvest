@@ -16,6 +16,7 @@ public static class HarvestManagerSelfTest
         TestWaterFlower();
         TestWaterNetworkWheat();
         TestWaterNetworkFlower();
+        TestDirt3x3Growth();
         TestPigletWheat();
         TestBearFish();
         TestFinalHarvest();
@@ -166,6 +167,36 @@ public static class HarvestManagerSelfTest
             Check(context.board.GetCell(new Vector2Int(0, 0)).resourceType == TileType.Empty, "Piglet should eat and clear the wheat cell.");
             Check(context.board.GetCell(new Vector2Int(1, 0)).resourceType == TileType.Boar, "Piglet should return and grow into boar on its source cell.");
             Check(context.board.GetCell(new Vector2Int(1, 0)).resourceValue == 4, "Returned grown boar yield should be 4.");
+        }
+        finally
+        {
+            context.Destroy();
+        }
+    }
+
+    private static void TestDirt3x3Growth()
+    {
+        var context = CreateContext();
+        try
+        {
+            for (var x = 0; x < 3; x++)
+            {
+                for (var y = 0; y < 3; y++)
+                {
+                    context.board.PlaceTile(new Vector2Int(x, y), TileType.Dirt);
+                }
+            }
+
+            context.board.SetResource(context.board.GetCell(new Vector2Int(0, 0)), TileType.Wheat);
+            context.harvest.ResolvePlacement(context.board, One(new Vector2Int(2, 2)));
+
+            Check(context.board.GetCell(new Vector2Int(0, 0)).resourceValue == 2, "Dirt 3x3 should add 1 wheat yield to existing wheat.");
+            Check(context.board.GetCell(new Vector2Int(1, 1)).resourceType == TileType.Wheat, "Dirt 3x3 should add wheat to empty dirt cells.");
+            Check(context.board.GetCell(new Vector2Int(1, 1)).resourceValue == 1, "Dirt 3x3 empty dirt cell should become wheat yield 1.");
+            Check(context.board.GetCell(new Vector2Int(1, 1)).dirt3x3Boosted, "Dirt 3x3 cells should be marked boosted.");
+
+            context.harvest.ResolvePlacement(context.board, One(new Vector2Int(2, 2)));
+            Check(context.board.GetCell(new Vector2Int(0, 0)).resourceValue == 2, "Dirt 3x3 should not boost the same square twice.");
         }
         finally
         {

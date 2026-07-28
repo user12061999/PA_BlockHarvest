@@ -22,6 +22,7 @@ public sealed class CellData
     public TileType resourceType;
     public int resourceValue;
     public bool occupied;
+    public bool dirt3x3Boosted;
 
     public CellData(Vector2Int coordinate, TileType tileType, bool occupied)
     {

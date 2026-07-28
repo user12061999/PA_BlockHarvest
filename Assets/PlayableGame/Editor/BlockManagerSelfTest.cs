@@ -15,6 +15,7 @@ public static class BlockManagerSelfTest
         var harvest = harvestObject.AddComponent<HarvestManager>();
         var managerObject = new GameObject("BlockManagerSelfTest");
         var manager = managerObject.AddComponent<BlockManager>();
+        var config = ScriptableObject.CreateInstance<LevelConfig>();
 
         try
         {
@@ -43,6 +44,20 @@ public static class BlockManagerSelfTest
             Check(manager.transform.position.y < board.transform.position.y, "BlockManager should sit under board.");
             Check(Mathf.Approximately(manager.ActiveBlocks[0].transform.position.x, -board.BoardVisualSize.x / 3f), "First spawn block should use board visual width spacing.");
 
+            config.useCustomBlockSpawns = true;
+            var turn = new LevelConfig.BlockSpawnTurn();
+            turn.blocks.Add(BlockData.Single(TileType.Dirt));
+            turn.blocks.Add(BlockData.Single(TileType.Water));
+            turn.blocks.Add(BlockData.Single(TileType.Grass));
+            turn.blocks[1].resourceTypes[0] = TileType.Bear;
+            config.blockSpawnTurns.Add(turn);
+            manager.SetLevelConfig(config);
+            manager.PrepareStartingBlocks();
+            Check(manager.ActiveBlocks[0].Data.tileTypes[0] == TileType.Dirt, "Custom spawn turn should create dirt block first.");
+            Check(manager.ActiveBlocks[1].Data.tileTypes[0] == TileType.Water, "Custom spawn turn should create water block second.");
+            Check(manager.ActiveBlocks[2].Data.tileTypes[0] == TileType.Grass, "Custom spawn turn should create grass block third.");
+            Check(manager.ActiveBlocks[1].Data.resourceTypes[0] != TileType.Bear, "Custom spawn should regenerate resource by tile type.");
+
             var blockObject = new GameObject("DeterministicBlock");
             blockObject.transform.SetParent(managerObject.transform, false);
             var block = blockObject.AddComponent<BlockPiece>();
@@ -63,6 +78,7 @@ public static class BlockManagerSelfTest
             UnityEngine.Object.DestroyImmediate(managerObject);
             UnityEngine.Object.DestroyImmediate(harvestObject);
             UnityEngine.Object.DestroyImmediate(boardObject);
+            UnityEngine.Object.DestroyImmediate(config);
         }
     }
 

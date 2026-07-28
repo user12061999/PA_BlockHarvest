@@ -63,6 +63,8 @@ public sealed class HarvestManager : MonoBehaviour
     private bool levelEnding;
     private bool boardHarvestInProgress;
     private int pendingHarvestAnimations;
+    private int pendingAnimalActions;
+    private bool placementResolveInProgress;
 
     public int WheatGoal => wheatGoal;
     public int FishGoal => fishGoal;
@@ -71,8 +73,9 @@ public sealed class HarvestManager : MonoBehaviour
     public int Flower => flower;
     public int Fish => fish;
     public int RemainingPlacements => remainingPlacements;
+    public LevelConfig Config => levelConfig;
     public bool IsGoalComplete => wheat >= wheatGoal && meat >= meatGoal && flower >= flowerGoal && fish >= fishGoal;
-    public bool IsLevelOver => levelEnding || IsGoalComplete || remainingPlacements == 0;
+    public bool IsLevelOver => pendingAnimalActions == 0 && (levelEnding || IsGoalComplete || remainingPlacements == 0);
 
     private void Awake()
     {
@@ -92,6 +95,8 @@ public sealed class HarvestManager : MonoBehaviour
         levelEnding = false;
         boardHarvestInProgress = false;
         pendingHarvestAnimations = 0;
+        pendingAnimalActions = 0;
+        placementResolveInProgress = false;
         currentBoard = null;
         ClearResourceGoals();
         SpawnResourceGoals();
@@ -112,6 +117,7 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         currentBoard = board;
+        placementResolveInProgress = true;
         remainingPlacements = Mathf.Max(0, remainingPlacements - 1);
         var cellsToCheck = new List<CellData>(placedCells.Count * 5);
 
@@ -131,7 +137,19 @@ public sealed class HarvestManager : MonoBehaviour
             ResolveCell(board, cell, claimedTargets);
         }
 
+        board.ResolveDirt3x3Growth(placedCells);
         ResolveWaterYield(board, placedCells);
+        placementResolveInProgress = false;
+        FinishPlacementWhenReady(board);
+        UpdateUI();
+    }
+
+    private void FinishPlacementWhenReady(BoardManager board)
+    {
+        if (pendingAnimalActions > 0)
+        {
+            return;
+        }
 
         var boardIsFull = board.IsFull();
         var visibleGoalComplete = IsVisibleGoalComplete();
@@ -149,8 +167,6 @@ public sealed class HarvestManager : MonoBehaviour
         {
             HarvestBoard(board);
         }
-
-        UpdateUI();
     }
 
     private void ResolveCell(BoardManager board, CellData cell, List<CellData> claimedTargets)
@@ -169,11 +185,12 @@ public sealed class HarvestManager : MonoBehaviour
             }
 
             AddUnique(claimedTargets, wheatCell);
+            BeginAnimalAction();
             board.PlayAnimalEat(cell, wheatCell, true, () =>
             {
                 board.SetResource(wheatCell, TileType.BabyBoar);
                 UpdateUI();
-            });
+            }, () => CompleteAnimalAction(board));
             return;
         }
 
@@ -186,12 +203,13 @@ public sealed class HarvestManager : MonoBehaviour
             }
 
             AddUnique(claimedTargets, wheatCell);
+            BeginAnimalAction();
             board.PlayAnimalEat(cell, wheatCell, true, () =>
             {
                 board.SetResource(wheatCell, TileType.Empty);
                 board.SetResource(cell, TileType.Boar);
                 UpdateUI();
-            });
+            }, () => CompleteAnimalAction(board));
             return;
         }
 
@@ -206,12 +224,29 @@ public sealed class HarvestManager : MonoBehaviour
             AddUnique(claimedTargets, fishCell);
             var fishValue = fishCell.resourceValue;
             var bearValue = cell.resourceValue;
+            BeginAnimalAction();
             board.PlayAnimalEat(cell, fishCell, false, () =>
             {
                 board.MoveResource(cell, fishCell, bearValue + fishValue);
                 UpdateUI();
-            });
+            }, () => CompleteAnimalAction(board));
         }
+    }
+
+    private void BeginAnimalAction()
+    {
+        pendingAnimalActions++;
+    }
+
+    private void CompleteAnimalAction(BoardManager board)
+    {
+        pendingAnimalActions = Mathf.Max(0, pendingAnimalActions - 1);
+        if (pendingAnimalActions == 0 && !placementResolveInProgress)
+        {
+            FinishPlacementWhenReady(board);
+        }
+
+        UpdateUI();
     }
 
     private void ResolveWaterYield(BoardManager board, List<Vector2Int> placedCells)
@@ -293,6 +328,11 @@ public sealed class HarvestManager : MonoBehaviour
         var goal = GetResourceGoalView(resourceType);
         var to = goal != null ? goal.TargetWorldPosition : from;
         var sprite = board != null ? board.GetTileSprite(resourceType) : (goal != null ? goal.ResourceSprite : null);
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayResourceFly();
+        }
 
         var marker = new GameObject("ResourceGoalFly_" + resourceType);
         marker.transform.position = from;
@@ -449,20 +489,20 @@ public sealed class HarvestManager : MonoBehaviour
                 remainingPlacements);
         }
 
-        if (!levelEnding && !boardHarvestInProgress && pendingHarvestAnimations == 0 && currentBoard != null && HasBoardResources(currentBoard) && IsVisibleGoalComplete())
+        if (!levelEnding && !boardHarvestInProgress && pendingHarvestAnimations == 0 && pendingAnimalActions == 0 && currentBoard != null && HasBoardResources(currentBoard) && IsVisibleGoalComplete())
         {
             levelEnding = true;
             HarvestBoard(currentBoard);
             return;
         }
 
-        if (IsGoalComplete && !boardHarvestInProgress && pendingHarvestAnimations == 0)
+        if (IsGoalComplete && !boardHarvestInProgress && pendingHarvestAnimations == 0 && pendingAnimalActions == 0)
         {
             BeginCompletionSequence();
         }
-        else if (remainingPlacements == 0 && !boardHarvestInProgress && pendingHarvestAnimations == 0 && playableUI != null)
+        else if (remainingPlacements == 0 && !boardHarvestInProgress && pendingHarvestAnimations == 0 && pendingAnimalActions == 0)
         {
-            playableUI.ShowCta();
+            FailLevel();
         }
     }
 
@@ -562,7 +602,7 @@ public sealed class HarvestManager : MonoBehaviour
 
     private int CountBoardResource(ResourceGoalKind kind)
     {
-        if (currentBoard == null || boardHarvestInProgress || pendingHarvestAnimations > 0)
+        if (currentBoard == null || boardHarvestInProgress || pendingHarvestAnimations > 0 || pendingAnimalActions > 0)
         {
             return 0;
         }
@@ -666,6 +706,11 @@ public sealed class HarvestManager : MonoBehaviour
         {
             var view = stops[i].view;
 
+            if (AudioManager.ins != null)
+            {
+                AudioManager.ins.PlayTruckMove();
+            }
+
             yield return MoveWorld(truckTransform, truckTransform.position, stops[i].stopPosition, truckMoveSeconds);
             PlayBasketPickupEffect(view.transform.position);
             view.Pickup();
@@ -674,6 +719,11 @@ public sealed class HarvestManager : MonoBehaviour
             {
                 yield return new WaitForSeconds(basketPickupSeconds);
             }
+        }
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayTruckMove();
         }
 
         yield return MoveWorld(truckTransform, truckTransform.position, truckExitWorldPosition, truckMoveSeconds);
@@ -712,6 +762,11 @@ public sealed class HarvestManager : MonoBehaviour
 
     private void PlayBasketPickupEffect(Vector3 position)
     {
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayBasketPickup();
+        }
+
         if (basketPickupEffectPrefab == null)
         {
             return;
@@ -759,6 +814,24 @@ public sealed class HarvestManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.CompletePrototype();
+        }
+        else if (playableUI != null)
+        {
+            playableUI.ShowCta();
+        }
+    }
+
+    private void FailLevel()
+    {
+        if (levelEnding)
+        {
+            return;
+        }
+
+        levelEnding = true;
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowLoseCard();
         }
         else if (playableUI != null)
         {

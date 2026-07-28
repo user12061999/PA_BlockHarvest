@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
@@ -10,12 +11,24 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private float gridCellSize = 1f;
     [SerializeField] private float pieceSize = 0.48f;
     [SerializeField] private float spawnCellScale = 0.48f;
+    [SerializeField] private float minSpawnSpacingInCells = 1.8f;
     [SerializeField] private float dragOffsetY = 0.6f;
     [SerializeField] private float trayHeightInCells = 2f;
     [SerializeField] private float trayGap = 0.08f;
     [SerializeField] private Vector3 bottomOffset = new Vector3(0f, -4.25f, 0f);
     [SerializeField] private Transform trayRoot;
     [SerializeField] private Transform[] spawnSlots = new Transform[3];
+    [SerializeField] private LevelConfig levelConfig;
+    [Header("Tutorial Hand")]
+    [SerializeField] private Sprite tutorialHandNormalSprite;
+    [SerializeField] private Sprite tutorialHandPressSprite;
+    [SerializeField] private Vector2Int tutorialTargetCell = new Vector2Int(3, 3);
+    [SerializeField] private Vector3 tutorialHandOffset = new Vector3(0.25f, -0.25f, 0f);
+    [SerializeField] private float tutorialDelay = 0.45f;
+    [SerializeField] private float tutorialHoldSeconds = 0.18f;
+    [SerializeField] private float tutorialMoveSeconds = 0.85f;
+    [SerializeField] private float tutorialLoopDelay = 0.35f;
+    [SerializeField] private int tutorialSortingOrder = 200;
     [Header("Tile Prefabs")]
     [SerializeField] private GameObject grassTilePrefab;
     [SerializeField] private GameObject dirtTilePrefab;
@@ -24,6 +37,10 @@ public sealed class BlockManager : MonoBehaviour
     private readonly List<BlockPiece> activeBlocks = new List<BlockPiece>(3);
     private BoardManager boardManager;
     private HarvestManager harvestManager;
+    private int customSpawnTurnIndex;
+    private SpriteRenderer tutorialHand;
+    private Coroutine tutorialRoutine;
+    private bool tutorialDismissed;
 
     public IReadOnlyList<BlockPiece> ActiveBlocks => activeBlocks;
     public BoardManager Board => boardManager;
@@ -37,6 +54,11 @@ public sealed class BlockManager : MonoBehaviour
     public void SetHarvestManager(HarvestManager harvestManager)
     {
         this.harvestManager = harvestManager;
+    }
+
+    public void SetLevelConfig(LevelConfig levelConfig)
+    {
+        this.levelConfig = levelConfig;
     }
 
     private void Awake()
@@ -63,7 +85,9 @@ public sealed class BlockManager : MonoBehaviour
         SyncBoardCellSize();
         LayoutFromBoard();
         EnsurePointerInput();
+        customSpawnTurnIndex = 0;
         CreatePlayableBlocks();
+        StartTutorial();
     }
 
     public List<BlockData> CreateExampleBlocks()
@@ -82,14 +106,56 @@ public sealed class BlockManager : MonoBehaviour
     {
         ClearBlocks();
         var candidates = FindPlayableBlocks();
+        var customBlocks = GetCustomSpawnBlocks();
 
         for (var i = 0; i < 3; i++)
         {
-            var blockData = candidates.Count > 0
+            var blockData = customBlocks != null && i < customBlocks.Count && customBlocks[i] != null && customBlocks[i].IsValid()
+                ? CopyBlockData(customBlocks[i])
+                : candidates.Count > 0
                 ? candidates[Random.Range(0, candidates.Count)]
                 : BlockData.Random();
             CreateBlockPiece(blockData, i);
         }
+    }
+
+    private List<BlockData> GetCustomSpawnBlocks()
+    {
+        var config = GetLevelConfig();
+        if (config == null || !config.useCustomBlockSpawns || config.blockSpawnTurns == null || customSpawnTurnIndex >= config.blockSpawnTurns.Count)
+        {
+            return null;
+        }
+
+        var turn = config.blockSpawnTurns[customSpawnTurnIndex];
+        customSpawnTurnIndex++;
+        return turn != null ? turn.blocks : null;
+    }
+
+    private LevelConfig GetLevelConfig()
+    {
+        if (levelConfig == null && harvestManager != null)
+        {
+            levelConfig = harvestManager.Config;
+        }
+
+        return levelConfig;
+    }
+
+    private BlockData CopyBlockData(BlockData source)
+    {
+        var resources = new TileType[source.positions.Count];
+        for (var i = 0; i < resources.Length; i++)
+        {
+            var tileType = i < source.tileTypes.Count ? source.tileTypes[i] : TileType.Empty;
+            resources[i] = BlockData.RandomResource(tileType);
+        }
+
+        return new BlockData(
+            source.name,
+            source.positions.ToArray(),
+            source.tileTypes.ToArray(),
+            resources);
     }
 
     private void CreateBlockPiece(BlockData blockData, int index)
@@ -106,6 +172,7 @@ public sealed class BlockManager : MonoBehaviour
 
     public void RemoveBlock(BlockPiece blockPiece)
     {
+        HideTutorial();
         if (harvestManager != null && harvestManager.IsLevelOver)
         {
             ClearBlocks();
@@ -123,6 +190,21 @@ public sealed class BlockManager : MonoBehaviour
             case TileType.Dirt: return dirtTilePrefab;
             case TileType.Water: return waterTilePrefab;
             default: return null;
+        }
+    }
+
+    public void HideTutorial()
+    {
+        tutorialDismissed = true;
+        if (tutorialRoutine != null)
+        {
+            StopCoroutine(tutorialRoutine);
+            tutorialRoutine = null;
+        }
+
+        if (tutorialHand != null)
+        {
+            tutorialHand.gameObject.SetActive(false);
         }
     }
 
@@ -193,7 +275,7 @@ public sealed class BlockManager : MonoBehaviour
         }
     }
 
-    private void LayoutFromBoard()
+    public void LayoutFromBoard()
     {
         if (!autoLayoutFromBoard || boardManager == null)
         {
@@ -201,22 +283,33 @@ public sealed class BlockManager : MonoBehaviour
         }
 
         var boardScale = boardManager.transform.lossyScale;
-        var boardVisualSize = boardManager.BoardVisualSize;
+        var boardVisualSize = boardManager.VisibleBoardVisualSize;
         var boardWidth = boardVisualSize.x * Mathf.Abs(boardScale.x);
         var boardHeight = boardVisualSize.y * Mathf.Abs(boardScale.y);
         var trayHeight = boardManager.CellVisualSize * trayHeightInCells;
-        var boardCenter = boardManager.transform.position;
+        var boardCenter = boardManager.VisibleBoardCenterWorld;
 
         transform.position = new Vector3(
             boardCenter.x,
             boardCenter.y - boardHeight * 0.5f - trayGap - trayHeight * 0.5f,
             transform.position.z);
 
-        blockSpacing = boardWidth / 3f;
+        blockSpacing = Mathf.Max(boardWidth / 3f, boardManager.CellVisualSize * minSpawnSpacingInCells);
         pieceSize = boardManager.CellVisualSize * spawnCellScale / 0.92f;
         bottomOffset = Vector3.zero;
         ScaleTray(boardWidth, trayHeight);
         PositionSpawnSlots();
+    }
+
+    public Vector3 GetBoardCenterOffsetForCenteredLayout(BoardManager board)
+    {
+        if (!autoLayoutFromBoard || board == null)
+        {
+            return Vector3.zero;
+        }
+
+        var trayHeight = board.CellVisualSize * trayHeightInCells;
+        return Vector3.up * ((trayGap + trayHeight) * 0.5f);
     }
 
     private void ScaleTray(float width, float height)
@@ -268,6 +361,70 @@ public sealed class BlockManager : MonoBehaviour
                 spawnSlot.position = GetSpawnPosition(i);
             }
         }
+    }
+
+    private void StartTutorial()
+    {
+        if (!Application.isPlaying || tutorialDismissed || (tutorialHandNormalSprite == null && tutorialHandPressSprite == null))
+        {
+            return;
+        }
+
+        if (tutorialRoutine != null)
+        {
+            StopCoroutine(tutorialRoutine);
+        }
+
+        tutorialRoutine = StartCoroutine(PlayTutorial());
+    }
+
+    private IEnumerator PlayTutorial()
+    {
+        yield return new WaitForSeconds(tutorialDelay);
+        EnsureTutorialHand();
+
+        while (!tutorialDismissed && activeBlocks.Count > 0 && boardManager != null && tutorialHand != null)
+        {
+            var block = activeBlocks[0];
+            if (block == null)
+            {
+                yield break;
+            }
+
+            var from = block.transform.position + tutorialHandOffset;
+            var to = boardManager.CoordinateToWorld(tutorialTargetCell) + tutorialHandOffset;
+            tutorialHand.gameObject.SetActive(true);
+            tutorialHand.sprite = tutorialHandNormalSprite != null ? tutorialHandNormalSprite : tutorialHandPressSprite;
+            tutorialHand.transform.position = from;
+            yield return new WaitForSeconds(tutorialHoldSeconds);
+
+            tutorialHand.sprite = tutorialHandPressSprite != null ? tutorialHandPressSprite : tutorialHandNormalSprite;
+            for (var elapsed = 0f; elapsed < tutorialMoveSeconds; elapsed += Time.deltaTime)
+            {
+                tutorialHand.transform.position = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / tutorialMoveSeconds));
+                yield return null;
+            }
+
+            tutorialHand.transform.position = to;
+            tutorialHand.sprite = tutorialHandNormalSprite != null ? tutorialHandNormalSprite : tutorialHandPressSprite;
+            yield return new WaitForSeconds(tutorialLoopDelay);
+            tutorialHand.gameObject.SetActive(false);
+            yield return new WaitForSeconds(tutorialLoopDelay);
+        }
+    }
+
+    private void EnsureTutorialHand()
+    {
+        if (tutorialHand != null)
+        {
+            return;
+        }
+
+        var handObject = new GameObject("TutorialHand");
+        handObject.transform.SetParent(transform.root, false);
+        tutorialHand = handObject.AddComponent<SpriteRenderer>();
+        tutorialHand.sortingOrder = tutorialSortingOrder;
+        tutorialHand.gameObject.SetActive(false);
     }
 
     private List<BlockData> FindPlayableBlocks()

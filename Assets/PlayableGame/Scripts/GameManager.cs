@@ -42,6 +42,13 @@ public sealed class GameManager : MonoBehaviour
         }
 
         IsRunning = false;
-        if (playableUI != null) playableUI.ShowCta();
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowWinCard();
+        }
+        else if (playableUI != null)
+        {
+            playableUI.ShowCta();
+        }
     }
 }
