@@ -13,6 +13,16 @@ public class LunaManager : MonoBehaviour
 
     [LunaPlaygroundField("Light Intensity")] public float lightIntensity = 1f;
     [LunaPlaygroundField("Light Color")] public Color colorLight = Color.white;
+    [Header("Resource Spawn Weights")]
+    [LunaPlaygroundField("Grass Empty Weight")] public int grassEmptyWeight = 1;
+    [LunaPlaygroundField("Grass Flower Weight")] public int grassFlowerWeight = 1;
+    [LunaPlaygroundField("Grass Boar Weight")] public int grassBoarWeight = 1;
+    [LunaPlaygroundField("Grass Baby Boar Weight")] public int grassBabyBoarWeight = 1;
+    [LunaPlaygroundField("Grass Bear Weight")] public int grassBearWeight = 1;
+    [LunaPlaygroundField("Dirt Empty Weight")] public int dirtEmptyWeight = 1;
+    [LunaPlaygroundField("Dirt Wheat Weight")] public int dirtWheatWeight = 1;
+    [LunaPlaygroundField("Water Empty Weight")] public int waterEmptyWeight = 1;
+    [LunaPlaygroundField("Water Fish Weight")] public int waterFishWeight = 1;
     public Light directionalLight;
     public bool isCretivePause;
 
@@ -121,6 +131,55 @@ public class LunaManager : MonoBehaviour
     public void showlosecard()
     {
         ShowLoseCard();
+    }
+
+    public TileType RandomResourceForTile(TileType tileType)
+    {
+        switch (tileType)
+        {
+            case TileType.Grass:
+                return PickWeighted(
+                    TileType.Empty, grassEmptyWeight,
+                    TileType.Flower, grassFlowerWeight,
+                    TileType.Boar, grassBoarWeight,
+                    TileType.BabyBoar, grassBabyBoarWeight,
+                    TileType.Bear, grassBearWeight);
+            case TileType.Dirt:
+                return PickWeighted(TileType.Empty, dirtEmptyWeight, TileType.Wheat, dirtWheatWeight);
+            case TileType.Water:
+                return PickWeighted(TileType.Empty, waterEmptyWeight, TileType.Fish, waterFishWeight);
+            default:
+                return TileType.Empty;
+        }
+    }
+
+    private TileType PickWeighted(TileType a, int aw, TileType b, int bw)
+    {
+        aw = Mathf.Max(0, aw);
+        bw = Mathf.Max(0, bw);
+        var total = aw + bw;
+        if (total <= 0) return TileType.Empty;
+        return Random.Range(0, total) < aw ? a : b;
+    }
+
+    private TileType PickWeighted(TileType a, int aw, TileType b, int bw, TileType c, int cw, TileType d, int dw, TileType e, int ew)
+    {
+        aw = Mathf.Max(0, aw);
+        bw = Mathf.Max(0, bw);
+        cw = Mathf.Max(0, cw);
+        dw = Mathf.Max(0, dw);
+        ew = Mathf.Max(0, ew);
+        var total = aw + bw + cw + dw + ew;
+        if (total <= 0) return TileType.Empty;
+        var roll = Random.Range(0, total);
+        if (roll < aw) return a;
+        roll -= aw;
+        if (roll < bw) return b;
+        roll -= bw;
+        if (roll < cw) return c;
+        roll -= cw;
+        if (roll < dw) return d;
+        return ew > 0 ? e : TileType.Empty;
     }
 
     public void OnClickEndCard()

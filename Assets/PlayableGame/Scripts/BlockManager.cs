@@ -15,6 +15,7 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private float dragOffsetY = 0.6f;
     [SerializeField] private float trayHeightInCells = 2f;
     [SerializeField] private float trayGap = 0.08f;
+    [SerializeField] private float minTrayGapInCells = 0.45f;
     [SerializeField] private Vector3 bottomOffset = new Vector3(0f, -4.25f, 0f);
     [SerializeField] private Transform trayRoot;
     [SerializeField] private Transform[] spawnSlots = new Transform[3];
@@ -37,6 +38,7 @@ public sealed class BlockManager : MonoBehaviour
     private readonly List<BlockPiece> activeBlocks = new List<BlockPiece>(3);
     private BoardManager boardManager;
     private HarvestManager harvestManager;
+    private PlayableUI playableUI;
     private int customSpawnTurnIndex;
     private SpriteRenderer tutorialHand;
     private Coroutine tutorialRoutine;
@@ -45,6 +47,7 @@ public sealed class BlockManager : MonoBehaviour
     public IReadOnlyList<BlockPiece> ActiveBlocks => activeBlocks;
     public BoardManager Board => boardManager;
     public HarvestManager Harvest => harvestManager;
+    public bool IsTutorialUiVisible => playableUI != null && playableUI.IsTutorialVisible;
 
     public void SetBoard(BoardManager boardManager)
     {
@@ -65,6 +68,7 @@ public sealed class BlockManager : MonoBehaviour
     {
         boardManager = FindObjectOfType<BoardManager>();
         harvestManager = FindObjectOfType<HarvestManager>();
+        playableUI = FindObjectOfType<PlayableUI>();
         SyncBoardCellSize();
         LayoutFromBoard();
         EnsurePointerInput();
@@ -86,8 +90,17 @@ public sealed class BlockManager : MonoBehaviour
         LayoutFromBoard();
         EnsurePointerInput();
         customSpawnTurnIndex = 0;
+        tutorialDismissed = false;
         CreatePlayableBlocks();
-        StartTutorial();
+        if (playableUI == null)
+        {
+            playableUI = FindObjectOfType<PlayableUI>();
+        }
+
+        if (playableUI == null)
+        {
+            ShowPlacementTutorial();
+        }
     }
 
     public List<BlockData> CreateExampleBlocks()
@@ -193,6 +206,12 @@ public sealed class BlockManager : MonoBehaviour
         }
     }
 
+    public void ShowPlacementTutorial()
+    {
+        tutorialDismissed = false;
+        StartTutorial();
+    }
+
     public void HideTutorial()
     {
         tutorialDismissed = true;
@@ -205,6 +224,16 @@ public sealed class BlockManager : MonoBehaviour
         if (tutorialHand != null)
         {
             tutorialHand.gameObject.SetActive(false);
+        }
+
+        if (playableUI == null)
+        {
+            playableUI = FindObjectOfType<PlayableUI>();
+        }
+
+        if (playableUI != null)
+        {
+            playableUI.HideTutorial();
         }
     }
 
@@ -269,7 +298,7 @@ public sealed class BlockManager : MonoBehaviour
 
     private void SyncBoardCellSize()
     {
-        if (boardManager != null)
+        if (boardManager != null && !boardManager.FitGameplayToAnchors)
         {
             boardManager.SetCellSize(gridCellSize);
         }
@@ -287,17 +316,18 @@ public sealed class BlockManager : MonoBehaviour
         var boardWidth = boardVisualSize.x * Mathf.Abs(boardScale.x);
         var boardHeight = boardVisualSize.y * Mathf.Abs(boardScale.y);
         var trayHeight = boardManager.CellVisualSize * trayHeightInCells;
+        var gap = GetTrayGap(boardManager);
         var boardCenter = boardManager.VisibleBoardCenterWorld;
 
         transform.position = new Vector3(
             boardCenter.x,
-            boardCenter.y - boardHeight * 0.5f - trayGap - trayHeight * 0.5f,
+            boardCenter.y - boardHeight * 0.5f - gap - trayHeight * 0.5f,
             transform.position.z);
 
         blockSpacing = Mathf.Max(boardWidth / 3f, boardManager.CellVisualSize * minSpawnSpacingInCells);
         pieceSize = boardManager.CellVisualSize * spawnCellScale / 0.92f;
         bottomOffset = Vector3.zero;
-        ScaleTray(boardWidth, trayHeight);
+        ScaleTray(Mathf.Max(boardWidth, GetSpawnLayoutWidth(boardManager)), trayHeight);
         PositionSpawnSlots();
     }
 
@@ -309,7 +339,37 @@ public sealed class BlockManager : MonoBehaviour
         }
 
         var trayHeight = board.CellVisualSize * trayHeightInCells;
-        return Vector3.up * ((trayGap + trayHeight) * 0.5f);
+        return Vector3.up * ((GetTrayGap(board) + trayHeight) * 0.5f);
+    }
+
+    public float GetTrayLayoutHeight(BoardManager board)
+    {
+        return board != null ? GetTrayGap(board) + board.CellVisualSize * trayHeightInCells : 0f;
+    }
+
+    private float GetTrayGap(BoardManager board)
+    {
+        return board != null ? Mathf.Max(trayGap, board.CellVisualSize * minTrayGapInCells) : trayGap;
+    }
+
+    public Vector2 GetGameplayLayoutSize(BoardManager board)
+    {
+        if (board == null)
+        {
+            return Vector2.zero;
+        }
+
+        var boardSize = board.VisibleBoardVisualSize;
+        var spawnWidth = GetSpawnLayoutWidth(board);
+        return new Vector2(Mathf.Max(boardSize.x, spawnWidth), boardSize.y + GetTrayLayoutHeight(board));
+    }
+
+    private float GetSpawnLayoutWidth(BoardManager board)
+    {
+        var cell = board.CellVisualSize;
+        var spacing = Mathf.Max(board.VisibleBoardVisualSize.x / 3f, cell * minSpawnSpacingInCells);
+        var maxBlockWidth = cell * spawnCellScale * 3f;
+        return spacing * 2f + maxBlockWidth;
     }
 
     private void ScaleTray(float width, float height)

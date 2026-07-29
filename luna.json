@@ -2,7 +2,7 @@
     "version": "7.2.0",
     "projectId": "f67ae32324e4e9245a2a316609bac5d0",
     "applicationID": 32681,
-    "creativeName": "",
+    "creativeName": "V01",
     "pgServer": "EU",
     "window": {
         "‐⁘": true
@@ -197,7 +197,7 @@
                 "forceIncluded": false
             }
         ],
-        "disableRuntimeAnalysisForCode": true,
+        "disableRuntimeAnalysisForCode": false,
         "disableRuntimeAnalysisForShaders": false,
         "useShadersCache": true,
         "usePreservativeDynamicBatching": true,
@@ -1556,10 +1556,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.ArgumentCache",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.Assertions.Assert",
                 "excluded": true
             },
@@ -1784,10 +1780,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.RectOffset",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.RenderBuffer",
                 "excluded": true
             },
@@ -1880,15 +1872,7 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.TextCore.LowLevel.FontEngine",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.TextCore.LowLevel.FontEngineUtilities",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.TextCore.LowLevel.GlyphMarshallingStruct",
                 "excluded": true
             },
             {
@@ -2000,10 +1984,6 @@
                 "excluded": true
             },
             {
-                "name": "LunaUnity.Utils.Delay",
-                "excluded": true
-            },
-            {
                 "name": "LunaUnity.Utils.Interval",
                 "excluded": true
             },
@@ -2053,10 +2033,6 @@
             },
             {
                 "name": "UnityEngine.AvatarMask",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.Events.UnityEvent",
                 "excluded": true
             },
             {
@@ -2217,10 +2193,6 @@
             },
             {
                 "name": "UnityEngine.AssetBundleRequest",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.AudioClip",
                 "excluded": true
             },
             {
@@ -3901,11 +3873,11 @@
             },
             {
                 "name": "UnityEngine.Events.PersistentListenerMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.Events.UnityEventCallState",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.EventSystems.EventHandle",
@@ -5329,7 +5301,7 @@
             },
             {
                 "name": "UnityEngine.TextCore.LowLevel.FontEngineError",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.TextCore.LowLevel.FontFeatureLookupFlags",
@@ -6444,10 +6416,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.AnimationTriggers",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.ClipperRegistry",
                 "excluded": true
             },
@@ -6528,10 +6496,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.Button",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.Dropdown",
                 "excluded": true
             },
@@ -6593,7 +6557,7 @@
             },
             {
                 "name": "UnityEngine.UI.Button.ButtonClickedEvent",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.CanvasScaler.ScaleMode",
@@ -6617,11 +6581,11 @@
             },
             {
                 "name": "UnityEngine.UI.CoroutineTween.ColorTween.ColorTweenCallback",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.CoroutineTween.ColorTween.ColorTweenMode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.CoroutineTween.FloatTween.FloatTweenCallback",
@@ -6697,7 +6661,7 @@
             },
             {
                 "name": "UnityEngine.UI.Navigation.Mode",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.Scrollbar.Axis",
@@ -6725,11 +6689,11 @@
             },
             {
                 "name": "UnityEngine.UI.Selectable.SelectionState",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.Selectable.Transition",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.Slider.Axis",
@@ -7237,10 +7201,6 @@
             },
             {
                 "name": "Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver",
-                "excluded": true
-            },
-            {
-                "name": "HarvestManager.TruckPickupStop",
                 "excluded": true
             },
             {
@@ -8185,6 +8145,482 @@
             },
             {
                 "name": "TMPro.HorizontalAlignmentOptions",
+                "excluded": false
+            },
+            {
+                "name": "DG.Tweening.Core.ABSAnimationComponent",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Debugger",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Debugger.Sequence",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenExternalCommand",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenSettings",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenSettings.ModulesSetup",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenSettings.SafeModeOptions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenUtils",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Easing.Bounce",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Easing.EaseCurve",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Easing.EaseManager",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Easing.Flash",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Extensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.SafeModeReport",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.TweenLink",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.TweenManager",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOCurve.CubicBezier",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTween",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOVirtual",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.EaseFactory",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PathCore.ControlPoint",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PluginsManager",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.SpecialPluginsUtils",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.StringPluginExtensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.ShortcutExtensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.TweenExtensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.TweenParams",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.TweenSettingsExtensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenComponent",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.SequenceCallback",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenPath",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PathCore.CatmullRomDecoder",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PathCore.CubicBezierDecoder",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PathCore.LinearDecoder",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.CirclePlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.PathPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.QuaternionPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.RectPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.SpiralPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.StringPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.UintPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Vector2Plugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Vector3ArrayPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Vector3Plugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Vector4Plugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Sequence",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.CustomPlugins.PureQuaternionPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Color2Plugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.ColorPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.DoublePlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.FloatPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.IntPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.LongPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.RectOffsetPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.UlongPlugin",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.AutoPlay",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.AxisConstraint",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenAnimationType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.IDOTweenInit",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.DOTweenSettings.SettingsLocation",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.FilterType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.NestedTweenFailureBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.OperationType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.RewindCallbackMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.SafeModeLogBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.SpecialStartupMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.UpdateMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.Enums.UpdateNotice",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.OnDisableBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.OnEnableBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.SafeModeReport.SafeModeReportType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.TargetType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.TweenManager.CapacityIncreaseMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.VisualManagerPreset",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOCurve",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenInspectorMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenVisualManager",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Ease",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.HandlesDrawMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.HandlesType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.LinkBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.LogBehaviour",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.LoopType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.PathMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.PathType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.PathCore.ABSPathDecoder",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Plugins.Options.OrientType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.RotateMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.ScrambleMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.ShakeRandomnessMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.SpiralMode",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.TweenType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.UpdateType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenAnimation",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenAnimationExtensions",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForCompletion",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForElapsedLoops",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForKill",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForPosition",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForRewind",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction.WaitForStart",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleAudio",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModulePhysics",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModulePhysics2D",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleSprite",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleUI",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleUI.Utils",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleUnityVersion",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleUtils",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenModuleUtils.Physics",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenProShortcuts",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenAnimation.AnimationType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenAnimation.TargetType",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.DOTweenCYInstruction",
+                "excluded": true
+            },
+            {
+                "name": "DG.Tweening.Core.ABSSequentiable",
+                "excluded": false
+            },
+            {
+                "name": "DG.Tweening.Plugins.Options.IPlugOptions",
+                "excluded": false
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.ITweenPlugin",
+                "excluded": false
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.IPlugSetter$4",
+                "excluded": false
+            },
+            {
+                "name": "DG.Tweening.Plugins.Core.ITPlugin$4",
                 "excluded": false
             }
         ],
@@ -14625,7 +15061,7 @@
                     },
                     {
                         "name": "op_Implicit",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "op_Implicit$1",
@@ -14715,7 +15151,7 @@
                     },
                     {
                         "name": "UnsafeAddListener",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "UnsafeRemoveListener",
@@ -14745,7 +15181,7 @@
                     },
                     {
                         "name": "InternalErrorShaderMaterial#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Blit",
@@ -14967,7 +15403,7 @@
                     },
                     {
                         "name": "LerpUnclamped",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Approximately",
@@ -15717,7 +16153,7 @@
                     },
                     {
                         "name": "timeScale#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "smoothDeltaTime#get",
@@ -16073,11 +16509,11 @@
                 "instanceMethods": [
                     {
                         "name": "Invoke",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddListener",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveListener",
@@ -16611,7 +17047,7 @@
                     },
                     {
                         "name": "root#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "hasChanged#get",
@@ -16691,7 +17127,7 @@
                     },
                     {
                         "name": "TransformVector",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Translate$1",
@@ -17379,7 +17815,7 @@
                     },
                     {
                         "name": "ViewportToWorldPoint",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ViewportPointToRay",
@@ -17427,7 +17863,7 @@
                     },
                     {
                         "name": "color#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "intensity#get",
@@ -17435,7 +17871,7 @@
                     },
                     {
                         "name": "intensity#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "shadowStrength#get",
@@ -18245,7 +18681,7 @@
                     },
                     {
                         "name": "defaultColorBlock#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "op_Equality",
@@ -18261,7 +18697,7 @@
                     },
                     {
                         "name": "normalColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "normalColor#set",
@@ -18269,7 +18705,7 @@
                     },
                     {
                         "name": "highlightedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedColor#set",
@@ -18277,7 +18713,7 @@
                     },
                     {
                         "name": "pressedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedColor#set",
@@ -18285,7 +18721,7 @@
                     },
                     {
                         "name": "selectedColor#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedColor#set",
@@ -18301,27 +18737,27 @@
                     },
                     {
                         "name": "colorMultiplier#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "colorMultiplier#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fadeDuration#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fadeDuration#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equalsT",
@@ -18337,7 +18773,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -18373,15 +18809,15 @@
                     },
                     {
                         "name": "defaultNavigation#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mode#set",
@@ -18421,7 +18857,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equalsT",
@@ -18433,7 +18869,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -18481,7 +18917,7 @@
                     },
                     {
                         "name": "highlightedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "highlightedSprite#set",
@@ -18489,7 +18925,7 @@
                     },
                     {
                         "name": "pressedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "pressedSprite#set",
@@ -18497,7 +18933,7 @@
                     },
                     {
                         "name": "selectedSprite#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "selectedSprite#set",
@@ -18513,7 +18949,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "equalsT",
@@ -18535,7 +18971,7 @@
                 "instanceMethods": [
                     {
                         "name": "Start",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Init",
@@ -18543,11 +18979,11 @@
                     },
                     {
                         "name": "StartTween",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "StopTween",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -18713,11 +19149,11 @@
                     },
                     {
                         "name": "CrossFadeColor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CrossFadeColor$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLayoutDirty",
@@ -21701,11 +22137,11 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Invoke",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -22823,7 +23259,7 @@
                     },
                     {
                         "name": "name#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mainTexture#get",
@@ -22847,7 +23283,7 @@
                     },
                     {
                         "name": "shader#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "passCount#get",
@@ -22895,7 +23331,7 @@
                     },
                     {
                         "name": "$ctor2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CopyPropertiesFromMaterial",
@@ -24003,7 +24439,7 @@
                     },
                     {
                         "name": "SetColor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "DisableRectClipping",
@@ -26481,11 +26917,11 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDestroy",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26499,7 +26935,7 @@
                     },
                     {
                         "name": "ExtractInteractable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ExtractBlocksRaycast",
@@ -26585,7 +27021,7 @@
                     },
                     {
                         "name": "RemoveRaycasters",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -26999,7 +27435,7 @@
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnCanvasHierarchyChanged",
@@ -27099,7 +27535,7 @@
                     },
                     {
                         "name": "startColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "targetColor#get",
@@ -27107,7 +27543,7 @@
                     },
                     {
                         "name": "targetColor#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "tweenMode#get",
@@ -27115,39 +27551,39 @@
                     },
                     {
                         "name": "tweenMode#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "duration#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "duration#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ignoreTimeScale#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ignoreTimeScale#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TweenValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddOnChangedCallback",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetIgnoreTimescale",
@@ -27159,7 +27595,7 @@
                     },
                     {
                         "name": "ValidTarget",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "getHashCode",
@@ -27171,7 +27607,7 @@
                     },
                     {
                         "name": "$clone",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -29239,7 +29675,7 @@
                     },
                     {
                         "name": "sourceFontFile#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sourceFontFile#set",
@@ -29723,7 +30159,7 @@
                     },
                     {
                         "name": "ctor",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "$ctor1",
@@ -29841,6 +30277,58 @@
                     },
                     {
                         "name": "AddCandidate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetLevelConfig",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetCustomSpawnBlocks",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetLevelConfig",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CopyBlockData",
+                        "excluded": false
+                    },
+                    {
+                        "name": "HideTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetBoardCenterOffsetForCenteredLayout",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTrayLayoutHeight",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTrayGap",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetGameplayLayoutSize",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSpawnLayoutWidth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTutorial",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureTutorialHand",
                         "excluded": false
                     }
                 ]
@@ -30206,6 +30694,58 @@
                     {
                         "name": "PlayClip",
                         "excluded": false
+                    },
+                    {
+                        "name": "VisibleBoardVisualSize#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "VisibleBoardCenterWorld#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FitGameplayToAnchors#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "LateUpdate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CenterOnCamera",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FitToGameplayAnchors",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayAnimalEat$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetVisibleCenterLocal",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetVisibleBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTileSprite$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResolveDirt3x3Growth",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryBoostDirt3x3",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDirt3x3Effect",
+                        "excluded": false
                     }
                 ]
             },
@@ -30409,7 +30949,7 @@
                     },
                     {
                         "name": "BeginCompletionSequence",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "IsVisibleGoalComplete",
@@ -30421,23 +30961,23 @@
                     },
                     {
                         "name": "CompletionSequence",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RunTruckPickup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "BuildTruckPickupStops",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayBasketPickupEffect",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTruckTransform",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "MoveWorld",
@@ -30454,6 +30994,26 @@
                     {
                         "name": "ApplyLevelConfig",
                         "excluded": false
+                    },
+                    {
+                        "name": "Config#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "FinishPlacementWhenReady",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BeginAnimalAction",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CompleteAnimalAction",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FailLevel",
+                        "excluded": true
                     }
                 ]
             },
@@ -30523,7 +31083,7 @@
                     },
                     {
                         "name": "Pickup",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -30653,6 +31213,10 @@
                     },
                     {
                         "name": "ClearChild",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyTilePrefabSprite",
                         "excluded": false
                     }
                 ]
@@ -33018,6 +33582,1200 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "UnityEngine.RectOffset",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "FromPaddings",
+                        "excluded": true
+                    },
+                    {
+                        "name": "vertical#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "horizontal#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Color2",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "op_Addition",
+                        "excluded": true
+                    },
+                    {
+                        "name": "op_Subtraction",
+                        "excluded": true
+                    },
+                    {
+                        "name": "op_Multiply",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Core.PathCore.Path",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Draw",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConvertToDrawPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetDrawPoints",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RefreshNonLinearDrawWps",
+                        "excluded": true
+                    },
+                    {
+                        "name": "minInputWaypoints#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AssignWaypoints",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AssignDecoder",
+                        "excluded": true
+                    },
+                    {
+                        "name": "FinalizePath",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetPoint",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConvertToConstantPathPerc",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetWaypointIndexFromPerc",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Destroy",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CloneIncremental",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Tween",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "DoGoto",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnTweenCallback",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnTweenCallback$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "fullPosition#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "fullPosition#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "hasLoops#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateDelay",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Core.ABSTweenPlugin$3",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "EvaluateAndApply",
+                        "excluded": true
+                    },
+                    {
+                        "name": "EvaluateAndApply$1",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.CircleOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Initialize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.PathOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.QuaternionOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.RectOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.StringOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.UintOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.Vector3ArrayOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.VectorOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.SpiralOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Tweener",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Setup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DoUpdateDelay",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DoStartup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DoChangeStartValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DoChangeEndValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DoChangeValues",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DOStartupSpecials",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DOStartupDurationBased",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.NoOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.ColorOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Plugins.Options.FloatOptions",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "DG.Tweening.Core.TweenerCore$3",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeStartValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeStartValue$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeEndValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeEndValue$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeEndValue$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeEndValue$3",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeValues",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ChangeValues$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFrom",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetFrom$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Reset",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Validate",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ValidateChangeValueType",
+                        "excluded": true
+                    },
+                    {
+                        "name": "UpdateDelay",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Startup",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ApplyTween",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.ArgumentCache",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.TextCore.LowLevel.FontEngine",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetInstance",
+                        "excluded": true
+                    },
+                    {
+                        "name": "InitializeFontEngine",
+                        "excluded": true
+                    },
+                    {
+                        "name": "DestroyFontEngine",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SendCancellationRequest",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace$3",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace$4",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadFontFace$5",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetFaceSize",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetFaceInfo",
+                        "excluded": true
+                    },
+                    {
+                        "name": "LoadGlyph",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryGetGlyphWithUnicodeValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryGetGlyphWithIndexValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryPackGlyphInAtlas",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryPackGlyphsInAtlas",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RenderGlyphToTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RenderGlyphsToTexture$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RenderGlyphsToTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "RenderGlyphsToSharedTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryAddGlyphToTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "TryAddGlyphsToTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetGlyphPairAdjustmentTable",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetGlyphPairAdjustmentRecords",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetGlyphPairAdjustmentRecords$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetGlyphIndex",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ResetAtlasTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.TextCore.LowLevel.GlyphMarshallingStruct",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "LunaUnity.Utils.Delay",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Stop",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Tick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Tick\",this)}this.c$-=t;if(this.c$<=0){pc.Application.getApplication().events.off(\"update",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.Events.UnityEvent",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Invoke",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Invoke$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddListener",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemoveListener",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.AudioClip",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "name#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "name#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "length#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.AnimationTriggers",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "normalTrigger#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "normalTrigger#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "highlightedTrigger#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "highlightedTrigger#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "pressedTrigger#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "pressedTrigger#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "selectedTrigger#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "selectedTrigger#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "disabledTrigger#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "disabledTrigger#set",
+                        "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.UI.Button",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "onClick#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "onClick#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "$ctor1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnPointerClick",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnSubmit",
+                        "excluded": true
+                    },
+                    {
+                        "name": "Press",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnFinishSubmit",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ConfigureForEntity",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "AudioManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayPlaceBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayInvalidDrop",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayResourceGain",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayAnimalEat",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayClearBoard",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayResourceFly",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayBasketPickup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTruckMove",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayMusicLose",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayMusicWin",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayMusic",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "LevelConfig.BlockSpawnTurn",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "LunaManager",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Awake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "Start",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetTexture",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PauseGameplay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ResumeGameplay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowEndCard",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShowLoseCard",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ShowWinCard",
+                        "excluded": true
+                    },
+                    {
+                        "name": "showwincard",
+                        "excluded": true
+                    },
+                    {
+                        "name": "showlosecard",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnClickEndCard",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "HarvestManager.TruckPickupStop",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "getDefaultValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "getHashCode",
+                        "excluded": true
+                    },
+                    {
+                        "name": "equals",
+                        "excluded": true
+                    },
+                    {
+                        "name": "$clone",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -33075,6 +34833,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/TextMesh Pro/Fonts/NotoSans-Bold SDF.asset"
                     }
                 ]
             },
@@ -33088,7 +34856,18 @@
                     "script": "",
                     "ext": ""
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "channels": 1,
+                        "startTime": "00:00.000",
+                        "endTime": "00:24.752",
+                        "lengthInSeconds": 24.75200080871582,
+                        "bitrate": 32,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/PlayableGame/sound/bgm_game.ogg"
+                    }
+                ]
             },
             "font": {
                 "default": {

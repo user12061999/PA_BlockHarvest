@@ -43,6 +43,7 @@ public sealed class HarvestManager : MonoBehaviour
     [Header("End Truck")]
     [SerializeField] private GameObject truckPrefab;
     [SerializeField] private Transform truck;
+    [SerializeField] private Sprite loadedTruckSprite;
     [SerializeField] private Vector3 truckExitWorldPosition = new Vector3(5f, 0f, 0f);
     [SerializeField] private float truckMoveSeconds = 0.35f;
     [SerializeField] private float basketPickupSeconds = 0.12f;
@@ -714,6 +715,7 @@ public sealed class HarvestManager : MonoBehaviour
             yield return MoveWorld(truckTransform, truckTransform.position, stops[i].stopPosition, truckMoveSeconds);
             PlayBasketPickupEffect(view.transform.position);
             view.Pickup();
+            ApplyLoadedTruckSprite(truckTransform);
 
             if (basketPickupSeconds > 0f)
             {
@@ -727,6 +729,20 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         yield return MoveWorld(truckTransform, truckTransform.position, truckExitWorldPosition, truckMoveSeconds);
+    }
+
+    private void ApplyLoadedTruckSprite(Transform truckTransform)
+    {
+        if (loadedTruckSprite == null || truckTransform == null)
+        {
+            return;
+        }
+
+        var renderer = truckTransform.GetComponentInChildren<SpriteRenderer>(true);
+        if (renderer != null)
+        {
+            renderer.sprite = loadedTruckSprite;
+        }
     }
 
     private List<TruckPickupStop> BuildTruckPickupStops(Vector3 start, Vector3 end)
@@ -814,6 +830,10 @@ public sealed class HarvestManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.CompletePrototype();
+        }
+        else if (LunaManager.ins != null)
+        {
+            LunaManager.ins.ShowWinCard();
         }
         else if (playableUI != null)
         {

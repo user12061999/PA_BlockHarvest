@@ -163,6 +163,11 @@ public sealed class BlockData
 
     public static TileType RandomResource(TileType ground)
     {
+        if (LunaManager.ins != null)
+        {
+            return LunaManager.ins.RandomResourceForTile(ground);
+        }
+
         switch (ground)
         {
             case TileType.Grass:

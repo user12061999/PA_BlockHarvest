@@ -74,11 +74,11 @@ MonoBehaviour:
       resourceTypes: 000000000000000000000000
     - name: Custom 4 Tile Block
       positions:
-      - {x: 1, y: 1}
+      - {x: 1, y: 0}
       - {x: 0, y: 1}
       - {x: 0, y: 0}
-      - {x: 1, y: 0}
-      tileTypes: 02000000020000000200000002000000
+      - {x: 1, y: 1}
+      tileTypes: 03000000030000000300000003000000
       resourceTypes: 00000000000000000000000000000000
     - name: Custom 3 Tile Block
       positions:
@@ -87,3 +87,21 @@ MonoBehaviour:
       - {x: 2, y: 0}
       tileTypes: 030000000300000003000000
       resourceTypes: 000000000000000000000000
+  - blocks:
+    - name: Custom 1 Tile Block
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 00000000
+    - name: Custom 2 Tile Block
+      positions:
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      tileTypes: 0200000002000000
+      resourceTypes: 0000000000000000
+    - name: Custom 2 Tile Block
+      positions:
+      - {x: 0, y: 0}
+      - {x: 1, y: 0}
+      tileTypes: 0200000002000000
+      resourceTypes: 0600000000000000

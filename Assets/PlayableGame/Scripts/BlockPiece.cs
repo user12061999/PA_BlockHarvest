@@ -22,6 +22,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector2 visualCenter;
     private readonly List<SpriteRenderer> tileRenderers = new List<SpriteRenderer>();
     private readonly List<SpriteRenderer> resourceRenderers = new List<SpriteRenderer>();
+    private bool pointerBlockedByTutorialUi;
 
     public BlockData Data => data;
     public Vector2Int TargetOrigin => targetOrigin;
@@ -44,6 +45,12 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        pointerBlockedByTutorialUi = blockManager != null && blockManager.IsTutorialUiVisible;
+        if (pointerBlockedByTutorialUi)
+        {
+            return;
+        }
+
         if (boardManager == null)
         {
             return;
@@ -64,6 +71,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (pointerBlockedByTutorialUi)
+        {
+            return;
+        }
+
         if (boardManager == null)
         {
             return;
@@ -77,6 +89,12 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (pointerBlockedByTutorialUi)
+        {
+            pointerBlockedByTutorialUi = false;
+            return;
+        }
+
         if (boardManager == null)
         {
             ReturnToTray();

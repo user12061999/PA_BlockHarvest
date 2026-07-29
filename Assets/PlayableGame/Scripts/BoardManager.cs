@@ -42,7 +42,10 @@ public sealed class BoardManager : MonoBehaviour
     [Header("Camera Layout")]
     [SerializeField] private bool centerOnCamera = true;
     [SerializeField] private bool centerGameplayWithTray = true;
-    [SerializeField] private Vector2 cameraViewportPosition = new Vector2(0.5f, 0.5f);
+    [SerializeField] private Vector2 gameplayAnchorMin = new Vector2(0f, 0.12f);
+    [SerializeField] private Vector2 gameplayAnchorMax = new Vector2(1f, 0.78f);
+    [SerializeField] private bool fitGameplayToAnchors = true;
+    [SerializeField] private float gameplayAnchorPadding = 0.2f;
     [SerializeField] private Vector2 cameraCenterOffset;
     [Header("Cell Layout")]
     [SerializeField] private float cellSize = 0.9f;
@@ -106,6 +109,7 @@ public sealed class BoardManager : MonoBehaviour
     }
 
     public Vector3 VisibleBoardCenterWorld => transform.TransformPoint(GetVisibleCenterLocal());
+    public bool FitGameplayToAnchors => fitGameplayToAnchors;
     public CellData[,] Cells => cells;
 
     private void LateUpdate()
@@ -179,13 +183,16 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
-        var distance = Mathf.Abs(mainCamera.transform.position.z - transform.position.z);
-        var target = mainCamera.ViewportToWorldPoint(new Vector3(cameraViewportPosition.x, cameraViewportPosition.y, distance));
         if (blockManager == null)
         {
             blockManager = FindObjectOfType<BlockManager>();
         }
 
+        var distance = Mathf.Abs(mainCamera.transform.position.z - transform.position.z);
+        FitToGameplayAnchors(mainCamera, distance);
+
+        var anchorCenter = (gameplayAnchorMin + gameplayAnchorMax) * 0.5f;
+        var target = mainCamera.ViewportToWorldPoint(new Vector3(anchorCenter.x, anchorCenter.y, distance));
         if (centerGameplayWithTray && blockManager != null)
         {
             target += blockManager.GetBoardCenterOffsetForCenteredLayout(this);
@@ -204,6 +211,31 @@ public sealed class BoardManager : MonoBehaviour
         {
             blockManager.LayoutFromBoard();
         }
+    }
+
+    private void FitToGameplayAnchors(Camera mainCamera, float distance)
+    {
+        if (!fitGameplayToAnchors || blockManager == null)
+        {
+            return;
+        }
+
+        var min = mainCamera.ViewportToWorldPoint(new Vector3(gameplayAnchorMin.x, gameplayAnchorMin.y, distance));
+        var max = mainCamera.ViewportToWorldPoint(new Vector3(gameplayAnchorMax.x, gameplayAnchorMax.y, distance));
+        var rectSize = new Vector2(Mathf.Abs(max.x - min.x), Mathf.Abs(max.y - min.y)) - Vector2.one * (gameplayAnchorPadding * 2f);
+        if (rectSize.x <= 0f || rectSize.y <= 0f)
+        {
+            return;
+        }
+
+        var gameplaySize = blockManager.GetGameplayLayoutSize(this);
+        var scale = Mathf.Min(rectSize.x / gameplaySize.x, rectSize.y / gameplaySize.y);
+        if (scale <= 0f || Mathf.Abs(scale - 1f) < 0.01f)
+        {
+            return;
+        }
+
+        SetCellSize(cellSize * scale);
     }
 
     public CellData GetCell(Vector2Int coordinate)
@@ -656,23 +688,29 @@ public sealed class BoardManager : MonoBehaviour
 
     private void BuildVisuals()
     {
-        var oldVisuals = transform.Find("BoardVisuals");
-        if (oldVisuals != null)
+        var root = transform.Find("BoardVisuals");
+        if (root == null)
         {
-            if (Application.isPlaying)
+            root = new GameObject("BoardVisuals").transform;
+            root.SetParent(transform, false);
+        }
+        else
+        {
+            for (var i = root.childCount - 1; i >= 0; i--)
             {
-                Destroy(oldVisuals.gameObject);
-            }
-            else
-            {
-                DestroyImmediate(oldVisuals.gameObject);
+                var child = root.GetChild(i);
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
             }
         }
 
         tileViews = new TileView[Width, Height];
-
-        var root = new GameObject("BoardVisuals").transform;
-        root.SetParent(transform, false);
 
         for (var x = 0; x < Width; x++)
         {
