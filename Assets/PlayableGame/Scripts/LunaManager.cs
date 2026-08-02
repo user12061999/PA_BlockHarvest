@@ -34,9 +34,12 @@ public class LunaManager : MonoBehaviour
     public Button[] lstBtnInstall;
     public GameObject EndCard, LoseCard;
     public GameObject WinCard;
+    private bool gameEndedNotified;
+    private Coroutine notifyGameEndedRoutine;
 
     void Start()
     {
+        EnsureVisibleScale(transform);
         directionalLight.intensity = lightIntensity;
         directionalLight.color = colorLight;
 
@@ -50,6 +53,8 @@ public class LunaManager : MonoBehaviour
         if (EndCard != null) EndCard.SetActive(false);
         if (LoseCard != null) LoseCard.SetActive(false);
         if (WinCard != null) WinCard.SetActive(false);
+        isCretivePause = false;
+        gameEndedNotified = false;
         Invoke(nameof(ShowEndCard), timeEndCreative);
     }
 
@@ -80,18 +85,22 @@ public class LunaManager : MonoBehaviour
     public void ShowEndCard()
     {
         if (isCretivePause) return;
+        CancelTimedEndCard();
         isCretivePause = true;
         if (AudioManager.ins != null) AudioManager.ins.PlayMusicLose();
         if (EndCard != null) EndCard.SetActive(true);
         Debug.Log("Show end card");
-        Luna.Unity.LifeCycle.GameEnded();
+        NotifyGameEnded();
     }
 
     public void ShowLoseCard()
     {
-        if (isCretivePause) return;
+        CancelTimedEndCard();
+        if (LoseCard != null && LoseCard.activeSelf) return;
         isCretivePause = true;
         if (AudioManager.ins != null) AudioManager.ins.PlayMusicLose();
+        if (EndCard != null) EndCard.SetActive(false);
+        if (WinCard != null) WinCard.SetActive(false);
         if (LoseCard != null)
         {
             LoseCard.SetActive(true);
@@ -102,25 +111,27 @@ public class LunaManager : MonoBehaviour
         }
 
         Debug.Log("ShowLoseCard");
-        Luna.Unity.LifeCycle.GameEnded();
+        NotifyGameEnded();
     }
 
     public void ShowWinCard()
     {
-        if (isCretivePause) return;
+        CancelTimedEndCard();
         isCretivePause = true;
         if (AudioManager.ins != null) AudioManager.ins.PlayMusicWin();
+        SetCardActive(EndCard, false);
+        SetCardActive(LoseCard, false);
         if (WinCard != null)
         {
-            WinCard.SetActive(true);
+            SetCardActive(WinCard, true);
         }
         else if (EndCard != null)
         {
-            EndCard.SetActive(true);
+            SetCardActive(EndCard, true);
         }
 
-        Debug.Log("Show win card");
-        Luna.Unity.LifeCycle.GameEnded();
+        Debug.Log("Show win card, WinCard=" + (WinCard != null) + ", activeInHierarchy=" + (WinCard != null && WinCard.activeInHierarchy));
+        NotifyGameEnded();
     }
 
     public void showwincard()
@@ -131,6 +142,81 @@ public class LunaManager : MonoBehaviour
     public void showlosecard()
     {
         ShowLoseCard();
+    }
+
+    public void CancelTimedEndCard()
+    {
+        CancelInvoke(nameof(ShowEndCard));
+    }
+
+    private void NotifyGameEnded()
+    {
+        if (gameEndedNotified)
+        {
+            return;
+        }
+
+        gameEndedNotified = true;
+        if (notifyGameEndedRoutine != null)
+        {
+            StopCoroutine(notifyGameEndedRoutine);
+        }
+
+        notifyGameEndedRoutine = StartCoroutine(NotifyGameEndedNextFrame());
+    }
+
+    private IEnumerator NotifyGameEndedNextFrame()
+    {
+        yield return null;
+        Luna.Unity.LifeCycle.GameEnded();
+        notifyGameEndedRoutine = null;
+    }
+
+    private void SetCardActive(GameObject card, bool active)
+    {
+        if (card == null)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            EnsureVisibleScaleTree(card.transform);
+            var parent = card.transform.parent;
+            while (parent != null)
+            {
+                if (!parent.gameObject.activeSelf)
+                {
+                    parent.gameObject.SetActive(true);
+                }
+
+                EnsureVisibleScale(parent);
+                parent = parent.parent;
+            }
+        }
+
+        card.SetActive(active);
+        if (active)
+        {
+            card.transform.SetAsLastSibling();
+        }
+    }
+
+    private void EnsureVisibleScale(Transform target)
+    {
+        if (target != null && target.localScale.sqrMagnitude < 0.0001f)
+        {
+            target.localScale = Vector3.one;
+        }
+    }
+
+    private void EnsureVisibleScaleTree(Transform root)
+    {
+        EnsureVisibleScale(root);
+        foreach (Transform child in root)
+        {
+            EnsureVisibleScaleTree(child);
+        }
     }
 
     public TileType RandomResourceForTile(TileType tileType)

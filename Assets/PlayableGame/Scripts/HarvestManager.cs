@@ -50,6 +50,7 @@ public sealed class HarvestManager : MonoBehaviour
     [SerializeField] private GameObject basketPickupEffectPrefab;
     [SerializeField] private float resourceFlySeconds = 0.35f;
     [SerializeField] private float resourceFlyScale = 1.5f;
+    private const float WinCardDelayAfterTruckStart = 3f;
 
     private PlayableUI playableUI;
     private GameManager gameManager;
@@ -66,6 +67,9 @@ public sealed class HarvestManager : MonoBehaviour
     private int pendingHarvestAnimations;
     private int pendingAnimalActions;
     private bool placementResolveInProgress;
+    private bool levelCompleted;
+    private bool winCardDelayScheduled;
+    private Coroutine winCardDelayRoutine;
 
     public int WheatGoal => wheatGoal;
     public int FishGoal => fishGoal;
@@ -98,6 +102,14 @@ public sealed class HarvestManager : MonoBehaviour
         pendingHarvestAnimations = 0;
         pendingAnimalActions = 0;
         placementResolveInProgress = false;
+        levelCompleted = false;
+        winCardDelayScheduled = false;
+        if (winCardDelayRoutine != null)
+        {
+            StopCoroutine(winCardDelayRoutine);
+            winCardDelayRoutine = null;
+        }
+
         currentBoard = null;
         ClearResourceGoals();
         SpawnResourceGoals();
@@ -282,11 +294,25 @@ public sealed class HarvestManager : MonoBehaviour
     private void HarvestBoard(BoardManager board)
     {
         boardHarvestInProgress = Application.isPlaying && HasBoardResources(board);
-        board.ClearBoard((resourceType, value, worldPosition) => CollectHarvestResource(board, resourceType, value, worldPosition));
+        board.ClearBoard(
+            (resourceType, value, worldPosition) => CollectHarvestResource(board, resourceType, value, worldPosition),
+            () => CompleteBoardClear(board));
         if (!Application.isPlaying || !boardHarvestInProgress)
         {
             boardHarvestInProgress = false;
         }
+    }
+
+    private void CompleteBoardClear(BoardManager board)
+    {
+        boardHarvestInProgress = false;
+        if (levelEnding || IsGoalComplete)
+        {
+            BeginCompletionSequence();
+            return;
+        }
+
+        UpdateUI();
     }
 
     private void AddHarvest(TileType resourceType, int value)
@@ -646,6 +672,11 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         completionSequenceStarted = true;
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.CancelTimedEndCard();
+        }
+
         if (Application.isPlaying)
         {
             StartCoroutine(CompletionSequence());
@@ -691,7 +722,10 @@ public sealed class HarvestManager : MonoBehaviour
     private IEnumerator CompletionSequence()
     {
         yield return RunTruckPickup();
-        CompleteLevel();
+        if (!winCardDelayScheduled)
+        {
+            CompleteLevel();
+        }
     }
 
     private IEnumerator RunTruckPickup()
@@ -712,6 +746,7 @@ public sealed class HarvestManager : MonoBehaviour
                 AudioManager.ins.PlayTruckMove();
             }
 
+            ScheduleWinCardAfterTruckStart();
             yield return MoveWorld(truckTransform, truckTransform.position, stops[i].stopPosition, truckMoveSeconds);
             PlayBasketPickupEffect(view.transform.position);
             view.Pickup();
@@ -728,7 +763,26 @@ public sealed class HarvestManager : MonoBehaviour
             AudioManager.ins.PlayTruckMove();
         }
 
+        ScheduleWinCardAfterTruckStart();
         yield return MoveWorld(truckTransform, truckTransform.position, truckExitWorldPosition, truckMoveSeconds);
+    }
+
+    private void ScheduleWinCardAfterTruckStart()
+    {
+        if (winCardDelayScheduled)
+        {
+            return;
+        }
+
+        winCardDelayScheduled = true;
+        winCardDelayRoutine = StartCoroutine(ShowWinCardAfterTruckDelay());
+    }
+
+    private IEnumerator ShowWinCardAfterTruckDelay()
+    {
+        yield return new WaitForSeconds(WinCardDelayAfterTruckStart);
+        winCardDelayRoutine = null;
+        CompleteLevel();
     }
 
     private void ApplyLoadedTruckSprite(Transform truckTransform)
@@ -822,6 +876,20 @@ public sealed class HarvestManager : MonoBehaviour
 
     private void CompleteLevel()
     {
+        if (levelCompleted)
+        {
+            return;
+        }
+
+        levelCompleted = true;
+        levelEnding = true;
+        completionSequenceStarted = true;
+        if (LunaManager.ins != null)
+        {
+            LunaManager.ins.showwincard();
+            return;
+        }
+
         if (gameManager == null)
         {
             gameManager = FindObjectOfType<GameManager>();
@@ -830,10 +898,6 @@ public sealed class HarvestManager : MonoBehaviour
         if (gameManager != null)
         {
             gameManager.CompletePrototype();
-        }
-        else if (LunaManager.ins != null)
-        {
-            LunaManager.ins.ShowWinCard();
         }
         else if (playableUI != null)
         {
@@ -851,7 +915,7 @@ public sealed class HarvestManager : MonoBehaviour
         levelEnding = true;
         if (LunaManager.ins != null)
         {
-            LunaManager.ins.ShowLoseCard();
+            LunaManager.ins.showlosecard();
         }
         else if (playableUI != null)
         {

@@ -44,7 +44,7 @@ public sealed class GameManager : MonoBehaviour
         IsRunning = false;
         if (LunaManager.ins != null)
         {
-            LunaManager.ins.ShowWinCard();
+            LunaManager.ins.showwincard();
         }
         else if (playableUI != null)
         {

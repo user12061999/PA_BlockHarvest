@@ -75,6 +75,10 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private float boarIdleScale = 0.06f;
     [SerializeField] private float boarIdleSpeed = 4f;
     [SerializeField] private float boarTravelSeconds = 0.35f;
+    [Header("Water Placement Animation")]
+    [SerializeField] private float adjacentWaterBounceHeight = 0.18f;
+    [SerializeField] private float adjacentWaterBounceSeconds = 0.24f;
+    [SerializeField] private float connectedWaterBounceStepDelay = 0.04f;
     [Header("Clear Animation")]
     [SerializeField] private float clearTileSeconds = 0.08f;
     [SerializeField] private float clearStepDelay = 0.03f;
@@ -403,6 +407,7 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         ClearPreview();
+        PlayConnectedWaterBounce(placedCells);
         return true;
     }
 
@@ -544,11 +549,21 @@ public sealed class BoardManager : MonoBehaviour
 
     public void ClearBoard(Action<TileType, int, Vector3> onResourceCleared)
     {
+        ClearBoard(onResourceCleared, null);
+    }
+
+    public void ClearBoard(Action<TileType, int, Vector3> onResourceCleared, Action onComplete)
+    {
         EnsureGrid();
 
         if (!Application.isPlaying || tileViews == null)
         {
             ClearBoardImmediate(onResourceCleared);
+            if (onComplete != null)
+            {
+                onComplete();
+            }
+
             return;
         }
 
@@ -589,10 +604,14 @@ public sealed class BoardManager : MonoBehaviour
             AudioManager.ins.PlayClearBoard();
         }
 
-        clearBoardRoutine = clearTiles.Count > 0 ? StartCoroutine(ClearBoardRoutine(clearTiles, onResourceCleared)) : null;
+        clearBoardRoutine = clearTiles.Count > 0 ? StartCoroutine(ClearBoardRoutine(clearTiles, onResourceCleared, onComplete)) : null;
         if (clearTiles.Count == 0)
         {
             RefreshVisuals();
+            if (onComplete != null)
+            {
+                onComplete();
+            }
         }
     }
 
@@ -676,6 +695,50 @@ public sealed class BoardManager : MonoBehaviour
     private TileView GetTileView(Vector2Int coordinate)
     {
         return tileViews != null && IsInside(coordinate) ? tileViews[coordinate.x, coordinate.y] : null;
+    }
+
+    private void PlayConnectedWaterBounce(List<Vector2Int> placedCells)
+    {
+        if (!Application.isPlaying || placedCells == null || tileViews == null)
+        {
+            return;
+        }
+
+        var open = new List<Vector2Int>(placedCells.Count);
+        var distances = new List<int>(placedCells.Count);
+        for (var i = 0; i < placedCells.Count; i++)
+        {
+            var placedCell = GetCell(placedCells[i]);
+            if (placedCell != null && placedCell.tileType == TileType.Water && !open.Contains(placedCell.coordinate))
+            {
+                open.Add(placedCell.coordinate);
+                distances.Add(0);
+            }
+        }
+
+        for (var i = 0; i < open.Count; i++)
+        {
+            var coordinate = open[i];
+            var view = GetTileView(coordinate);
+            if (view != null)
+            {
+                view.PlayBounce(
+                    adjacentWaterBounceHeight,
+                    adjacentWaterBounceSeconds,
+                    distances[i] * connectedWaterBounceStepDelay);
+            }
+
+            foreach (var neighbor in GetNeighbors4(coordinate))
+            {
+                if (neighbor.tileType != TileType.Water || open.Contains(neighbor.coordinate))
+                {
+                    continue;
+                }
+
+                open.Add(neighbor.coordinate);
+                distances.Add(distances[i] + 1);
+            }
+        }
     }
 
     private void EnsureGrid()
@@ -953,7 +1016,7 @@ public sealed class BoardManager : MonoBehaviour
         }
     }
 
-    private IEnumerator ClearBoardRoutine(List<ClearTile> clearTiles, Action<TileType, int, Vector3> onResourceCleared)
+    private IEnumerator ClearBoardRoutine(List<ClearTile> clearTiles, Action<TileType, int, Vector3> onResourceCleared, Action onComplete)
     {
         for (var i = 0; i < clearTiles.Count; i++)
         {
@@ -979,6 +1042,10 @@ public sealed class BoardManager : MonoBehaviour
 
         RefreshVisuals();
         clearBoardRoutine = null;
+        if (onComplete != null)
+        {
+            onComplete();
+        }
     }
 
     private void PlayClearResourceFeedback(ClearTile clearTile)

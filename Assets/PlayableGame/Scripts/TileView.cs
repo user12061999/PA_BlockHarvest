@@ -24,6 +24,8 @@ public sealed class TileView : MonoBehaviour
     private SpriteRenderer[] tilePrefabRenderers;
     private Color[] tilePrefabColors;
     private Sprite[] tilePrefabSprites;
+    private Coroutine bounceAnimation;
+    private Vector3 baseLocalPosition;
 
     public Vector2Int Coordinate => cell != null ? cell.coordinate : Vector2Int.zero;
     public TileType BlockType => cell != null ? cell.tileType : TileType.Empty;
@@ -88,6 +90,28 @@ public sealed class TileView : MonoBehaviour
         {
             effect.Play(direction);
         }
+    }
+
+    public void PlayBounce(float height, float seconds)
+    {
+        PlayBounce(height, seconds, 0f);
+    }
+
+    public void PlayBounce(float height, float seconds, float delay)
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        if (bounceAnimation != null)
+        {
+            StopCoroutine(bounceAnimation);
+            transform.localPosition = baseLocalPosition;
+        }
+
+        baseLocalPosition = transform.localPosition;
+        bounceAnimation = StartCoroutine(Bounce(height, seconds, delay));
     }
 
     public IEnumerator PlayClear(float seconds)
@@ -459,6 +483,34 @@ public sealed class TileView : MonoBehaviour
         }
 
         target.localScale = baseScale;
+    }
+
+    private IEnumerator Bounce(float height, float seconds, float delay)
+    {
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+
+        seconds = Mathf.Max(0.01f, seconds);
+        var from = baseLocalPosition;
+        var to = from + Vector3.up * height;
+        var halfSeconds = seconds * 0.5f;
+
+        for (var elapsed = 0f; elapsed < halfSeconds; elapsed += Time.deltaTime)
+        {
+            transform.localPosition = Vector3.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / halfSeconds));
+            yield return null;
+        }
+
+        for (var elapsed = 0f; elapsed < halfSeconds; elapsed += Time.deltaTime)
+        {
+            transform.localPosition = Vector3.Lerp(to, from, Mathf.SmoothStep(0f, 1f, elapsed / halfSeconds));
+            yield return null;
+        }
+
+        transform.localPosition = from;
+        bounceAnimation = null;
     }
 
     private void UpdateResourceValueLabel()
