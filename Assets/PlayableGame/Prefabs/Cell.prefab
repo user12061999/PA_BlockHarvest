@@ -140,6 +140,7 @@ MonoBehaviour:
   resourceRenderer: {fileID: 6934101767209439391}
   resourceValueLabel: {fileID: 4408627616694855075}
   resourceScale: 1.2
+  resourceYOffset: 0.1
 --- !u!1 &1510381713604157427
 GameObject:
   m_ObjectHideFlags: 0
@@ -577,8 +578,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.5
-  m_fontSizeBase: 0.5
+  m_fontSize: 0.3
+  m_fontSizeBase: 0.3
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

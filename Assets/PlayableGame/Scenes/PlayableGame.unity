@@ -272,7 +272,7 @@ RectTransform:
   m_GameObject: {fileID: 44664879}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 55287047}
@@ -801,16 +801,21 @@ MonoBehaviour:
   yieldEffectPrefab: {fileID: 4354657355424194068, guid: e89049a977a3347e19317e83c08d483b, type: 3}
   clearResourceEffectPrefab: {fileID: 3868148230245356851, guid: e6f7d310cddd24d2d88383f27970dd29, type: 3}
   dirt3x3EffectPrefab: {fileID: 2419608504078280177, guid: b0e0692f4445d2541b216fd188287912, type: 3}
+  waterSplashEffectPrefab: {fileID: 5183363717592586582, guid: 21456a7f75fb64f7a8102e36284bbc2a, type: 3}
+  waterSplashEffectLifetime: 2
   yieldAudioClip: {fileID: 0}
   animalActionAudioClip: {fileID: 0}
   boarIdleScale: 0.06
   boarIdleSpeed: 4
   boarTravelSeconds: 0.35
+  placementPreviewAlpha: 0.7
   adjacentWaterBounceHeight: 0.18
   adjacentWaterBounceSeconds: 0.24
   connectedWaterBounceStepDelay: 0.04
   clearTileSeconds: 0.08
   clearStepDelay: 0.03
+  clearCameraShakeSeconds: 0.5
+  clearCameraShakeMagnitude: 0.3
   animalAnimations:
   - resourceType: 7
     framesPerSecond: 10
@@ -2293,11 +2298,11 @@ MonoBehaviour:
   truck: {fileID: 1350452331}
   loadedTruckSprite: {fileID: 21300000, guid: 4a37cd97184a09d448bcaa534b3c3297, type: 3}
   truckExitWorldPosition: {x: -3, y: 5.586, z: 0}
-  truckMoveSeconds: 1
-  basketPickupSeconds: 0.5
+  truckMoveSeconds: 0.5
+  basketPickupSeconds: 0.75
   basketPickupEffectPrefab: {fileID: 2419608504078280177, guid: b0e0692f4445d2541b216fd188287912, type: 3}
   resourceFlySeconds: 0.35
-  resourceFlyScale: 1.5
+  resourceFlyScale: 2
 --- !u!1 &1049224387
 GameObject:
   m_ObjectHideFlags: 0

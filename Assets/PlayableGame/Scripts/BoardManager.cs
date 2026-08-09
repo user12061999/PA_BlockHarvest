@@ -70,11 +70,15 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private GameObject yieldEffectPrefab;
     [SerializeField] private GameObject clearResourceEffectPrefab;
     [SerializeField] private GameObject dirt3x3EffectPrefab;
+    [SerializeField] private GameObject waterSplashEffectPrefab;
+    [SerializeField] private float waterSplashEffectLifetime = 2f;
     [SerializeField] private AudioClip yieldAudioClip;
     [SerializeField] private AudioClip animalActionAudioClip;
     [SerializeField] private float boarIdleScale = 0.06f;
     [SerializeField] private float boarIdleSpeed = 4f;
     [SerializeField] private float boarTravelSeconds = 0.35f;
+    [Header("Placement Preview")]
+    [SerializeField] private float placementPreviewAlpha = 0.7f;
     [Header("Water Placement Animation")]
     [SerializeField] private float adjacentWaterBounceHeight = 0.18f;
     [SerializeField] private float adjacentWaterBounceSeconds = 0.24f;
@@ -82,6 +86,8 @@ public sealed class BoardManager : MonoBehaviour
     [Header("Clear Animation")]
     [SerializeField] private float clearTileSeconds = 0.08f;
     [SerializeField] private float clearStepDelay = 0.03f;
+    [SerializeField] private float clearCameraShakeSeconds = 0.5f;
+    [SerializeField] private float clearCameraShakeMagnitude = 0.08f;
     [Header("Animal Frame Animations")]
     [SerializeField] private List<AnimalFrameSet> animalAnimations = new List<AnimalFrameSet>();
 
@@ -90,6 +96,9 @@ public sealed class BoardManager : MonoBehaviour
     private readonly List<Vector2Int> previewCells = new List<Vector2Int>(4);
     private Sprite cellSprite;
     private Coroutine clearBoardRoutine;
+    private Coroutine cameraShakeRoutine;
+    private Transform cameraShakeTarget;
+    private Vector3 cameraShakeBaseLocalPosition;
     private BlockManager blockManager;
 
     public Vector2Int BoardSize => new Vector2Int(Width, Height);
@@ -147,6 +156,8 @@ public sealed class BoardManager : MonoBehaviour
 
     public void ResetBoard()
     {
+        ApplyLevelConfig();
+
         if (levelConfig != null && levelConfig.playableCoordinates.Count > 0)
         {
             playableCoordinates = new List<Vector2Int>(levelConfig.playableCoordinates);
@@ -434,11 +445,10 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         var isValid = CanPlace(origin, blockData);
-        var previewColor = isValid ? new Color(0.2f, 0.95f, 0.25f) : new Color(1f, 0.18f, 0.14f);
 
-        foreach (var offset in blockData.positions)
+        for (var i = 0; i < blockData.positions.Count; i++)
         {
-            var coordinate = origin + offset;
+            var coordinate = origin + blockData.positions[i];
             if (!IsInside(coordinate))
             {
                 continue;
@@ -448,7 +458,7 @@ public sealed class BoardManager : MonoBehaviour
             var view = GetTileView(coordinate);
             if (view != null)
             {
-                view.SetTileColor(previewColor);
+                view.ShowPlacementPreview(blockData.tileTypes[i], blockData.resourceTypes[i], placementPreviewAlpha);
             }
         }
 
@@ -464,8 +474,11 @@ public sealed class BoardManager : MonoBehaviour
 
         foreach (var coordinate in previewCells)
         {
-            var cell = cells[coordinate.x, coordinate.y];
-            UpdateVisual(cell);
+            var view = GetTileView(coordinate);
+            if (view != null)
+            {
+                view.ClearPlacementPreview();
+            }
         }
 
         previewCells.Clear();
@@ -495,10 +508,25 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
+        var previousValue = cell.resourceValue;
         cell.resourceType = resourceType;
         cell.resourceValue = GetDefaultResourceValue(resourceType);
         UpdateVisual(cell);
-        PlayYieldFeedback(cell);
+        if (cell.resourceValue > previousValue)
+        {
+            PlayYieldFeedback(cell, cell.resourceValue - previousValue);
+        }
+    }
+
+    private void ApplyLevelConfig()
+    {
+        if (levelConfig == null)
+        {
+            return;
+        }
+
+        adjacentWaterBounceHeight = Mathf.Max(0f, levelConfig.waterBounceHeight);
+        adjacentWaterBounceSeconds = Mathf.Max(0.01f, levelConfig.waterBounceSeconds);
     }
 
     public void SetResourceValue(CellData cell, int value)
@@ -508,9 +536,13 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
+        var previousValue = cell.resourceValue;
         cell.resourceValue = value;
         UpdateVisual(cell);
-        PlayYieldFeedback(cell);
+        if (cell.resourceValue > previousValue)
+        {
+            PlayYieldFeedback(cell, cell.resourceValue - previousValue);
+        }
     }
 
     public void AddResourceValue(CellData cell, int amount)
@@ -520,9 +552,13 @@ public sealed class BoardManager : MonoBehaviour
             return;
         }
 
+        var previousValue = cell.resourceValue;
         cell.resourceValue += amount;
         UpdateVisual(cell);
-        PlayYieldFeedback(cell);
+        if (cell.resourceValue > previousValue)
+        {
+            PlayYieldFeedback(cell, cell.resourceValue - previousValue);
+        }
     }
 
     public void MoveResource(CellData fromCell, CellData toCell, int newValue)
@@ -533,13 +569,17 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         var resourceType = fromCell.resourceType;
+        var previousResourceValue = fromCell.resourceValue;
         fromCell.resourceType = TileType.Empty;
         fromCell.resourceValue = 0;
         toCell.resourceType = resourceType;
         toCell.resourceValue = newValue;
         UpdateVisual(fromCell);
         UpdateVisual(toCell);
-        PlayYieldFeedback(toCell);
+        if (newValue > previousResourceValue)
+        {
+            PlayYieldFeedback(toCell, newValue - previousResourceValue);
+        }
     }
 
     public void ClearBoard()
@@ -602,6 +642,11 @@ public sealed class BoardManager : MonoBehaviour
         if (clearTiles.Count > 0 && AudioManager.ins != null)
         {
             AudioManager.ins.PlayClearBoard();
+        }
+
+        if (clearTiles.Count > 0)
+        {
+            PlayClearCameraShake();
         }
 
         clearBoardRoutine = clearTiles.Count > 0 ? StartCoroutine(ClearBoardRoutine(clearTiles, onResourceCleared, onComplete)) : null;
@@ -722,10 +767,9 @@ public sealed class BoardManager : MonoBehaviour
             var view = GetTileView(coordinate);
             if (view != null)
             {
-                view.PlayBounce(
-                    adjacentWaterBounceHeight,
-                    adjacentWaterBounceSeconds,
-                    distances[i] * connectedWaterBounceStepDelay);
+                var delay = distances[i] * connectedWaterBounceStepDelay;
+                view.PlayBounce(adjacentWaterBounceHeight, adjacentWaterBounceSeconds, delay);
+                PlayWaterSplash(coordinate, delay);
             }
 
             foreach (var neighbor in GetNeighbors4(coordinate))
@@ -1021,22 +1065,33 @@ public sealed class BoardManager : MonoBehaviour
         for (var i = 0; i < clearTiles.Count; i++)
         {
             var clearTile = clearTiles[i];
-            if (clearTile.resourceType != TileType.Empty && onResourceCleared != null)
-            {
-                onResourceCleared(clearTile.resourceType, clearTile.resourceValue, clearTile.worldPosition);
-            }
-
             var view = clearTile.view;
             if (view != null)
             {
                 PlayClearResourceFeedback(clearTile);
-                yield return view.PlayClear(clearTileSeconds);
-                view.Render();
+                var keepResourceVisuals = clearTile.resourceType != TileType.Empty;
+                yield return view.PlayClear(clearTileSeconds, keepResourceVisuals);
+                if (!keepResourceVisuals)
+                {
+                    view.Render();
+                }
             }
 
             if (clearStepDelay > 0f)
             {
                 yield return new WaitForSeconds(clearStepDelay);
+            }
+        }
+
+        if (onResourceCleared != null)
+        {
+            for (var i = 0; i < clearTiles.Count; i++)
+            {
+                var clearTile = clearTiles[i];
+                if (clearTile.resourceType != TileType.Empty)
+                {
+                    onResourceCleared(clearTile.resourceType, clearTile.resourceValue, clearTile.worldPosition);
+                }
             }
         }
 
@@ -1057,6 +1112,64 @@ public sealed class BoardManager : MonoBehaviour
 
         var effect = Instantiate(clearResourceEffectPrefab, clearTile.worldPosition, Quaternion.identity, transform);
         Destroy(effect, 2f);
+    }
+
+    private void PlayClearCameraShake()
+    {
+        if (!Application.isPlaying || clearCameraShakeSeconds <= 0f || clearCameraShakeMagnitude <= 0f)
+        {
+            return;
+        }
+
+        var mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            mainCamera = FindObjectOfType<Camera>();
+        }
+
+        if (mainCamera == null)
+        {
+            return;
+        }
+
+        if (cameraShakeRoutine != null)
+        {
+            StopCoroutine(cameraShakeRoutine);
+            if (cameraShakeTarget != null)
+            {
+                cameraShakeTarget.localPosition = cameraShakeBaseLocalPosition;
+            }
+        }
+
+        cameraShakeTarget = mainCamera.transform;
+        cameraShakeBaseLocalPosition = cameraShakeTarget.localPosition;
+        cameraShakeRoutine = StartCoroutine(CameraShakeRoutine(cameraShakeTarget));
+    }
+
+    private IEnumerator CameraShakeRoutine(Transform target)
+    {
+        var duration = Mathf.Max(0.01f, clearCameraShakeSeconds);
+        for (var elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            if (target == null)
+            {
+                cameraShakeRoutine = null;
+                yield break;
+            }
+
+            var strength = clearCameraShakeMagnitude * (1f - elapsed / duration);
+            var offset = UnityEngine.Random.insideUnitCircle * strength;
+            target.localPosition = cameraShakeBaseLocalPosition + new Vector3(offset.x, offset.y, 0f);
+            yield return null;
+        }
+
+        if (target != null)
+        {
+            target.localPosition = cameraShakeBaseLocalPosition;
+        }
+
+        cameraShakeTarget = null;
+        cameraShakeRoutine = null;
     }
 
     private void ClearCellState(CellData cell)
@@ -1131,7 +1244,6 @@ public sealed class BoardManager : MonoBehaviour
             sourceRenderer.enabled = false;
         }
 
-        PlayYieldFeedback(GetCell(targetCoordinate));
         yield return new WaitForSeconds(0.12f);
 
         if (returnToStart)
@@ -1247,9 +1359,9 @@ public sealed class BoardManager : MonoBehaviour
         return tileType == TileType.Water;
     }
 
-    private void PlayYieldFeedback(CellData cell)
+    private void PlayYieldFeedback(CellData cell, int increaseAmount)
     {
-        if (!Application.isPlaying || cell == null || cell.resourceType == TileType.Empty)
+        if (!Application.isPlaying || cell == null || cell.resourceType == TileType.Empty || increaseAmount <= 0)
         {
             return;
         }
@@ -1272,8 +1384,43 @@ public sealed class BoardManager : MonoBehaviour
         var view = GetTileView(cell.coordinate);
         if (view != null)
         {
-            view.PlayPulse();
+            view.PlayResourceScaleIn();
+            view.PlayYieldPopup(increaseAmount);
         }
+    }
+
+    private void PlayWaterSplash(Vector2Int coordinate, float delay)
+    {
+        if (!Application.isPlaying || waterSplashEffectPrefab == null)
+        {
+            return;
+        }
+
+        if (delay > 0f)
+        {
+            StartCoroutine(PlayWaterSplashDelayed(coordinate, delay));
+            return;
+        }
+
+        SpawnWaterSplash(coordinate);
+    }
+
+    private IEnumerator PlayWaterSplashDelayed(Vector2Int coordinate, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnWaterSplash(coordinate);
+    }
+
+    private void SpawnWaterSplash(Vector2Int coordinate)
+    {
+        var cell = GetCell(coordinate);
+        if (cell == null || cell.tileType != TileType.Water || waterSplashEffectPrefab == null)
+        {
+            return;
+        }
+
+        var effect = Instantiate(waterSplashEffectPrefab, CoordinateToWorld(coordinate), Quaternion.identity, transform);
+        Destroy(effect, Mathf.Max(0.01f, waterSplashEffectLifetime));
     }
 
     private void PlayClip(AudioClip clip)

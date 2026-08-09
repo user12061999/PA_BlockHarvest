@@ -17,6 +17,9 @@ public sealed class LevelConfig : ScriptableObject
     public int flowerGoal = 8;
     public int fishGoal = 10;
     public int maxPlacements = 12;
+    [Header("Water Placement Animation")]
+    public float waterBounceHeight = 0.18f;
+    public float waterBounceSeconds = 0.24f;
     public bool useCustomBlockSpawns;
     public List<BlockSpawnTurn> blockSpawnTurns = new List<BlockSpawnTurn>();
 }

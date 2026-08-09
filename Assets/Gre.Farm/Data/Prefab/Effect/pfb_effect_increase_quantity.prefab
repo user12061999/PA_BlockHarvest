@@ -426,12 +426,32 @@ PrefabInstance:
       value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
-      propertyPath: InitialModule.startSpeed.minScalar
+      propertyPath: InitialModule.startSize.scalar
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
+      propertyPath: InitialModule.startSpeed.scalar
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
+      propertyPath: InitialModule.startSpeed.minScalar
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
       propertyPath: InitialModule.startColor.maxColor.a
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
+      propertyPath: InitialModule.startLifetime.minScalar
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
       propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[0].value
@@ -451,7 +471,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1124706106952995334, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
       propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
-      value: 5
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 1124706107622163539, guid: e7b5223a82034394e97422a2d9da986d, type: 3}
       propertyPath: lengthInSec

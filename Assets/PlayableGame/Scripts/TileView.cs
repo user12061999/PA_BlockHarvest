@@ -12,6 +12,7 @@ public sealed class TileView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI resourceValueLabel;
     [Header("Resource Visual")]
     [SerializeField] private float resourceScale = 1.2f;
+    [SerializeField] private float resourceYOffset = 0.1f;
 
     private BoardManager board;
     private CellData cell;
@@ -25,6 +26,11 @@ public sealed class TileView : MonoBehaviour
     private Color[] tilePrefabColors;
     private Sprite[] tilePrefabSprites;
     private Coroutine bounceAnimation;
+    private Coroutine yieldPopupAnimation;
+    private Coroutine resourceScaleInAnimation;
+    private float resourceScaleInAmount = 1f;
+    private GameObject yieldPopupObject;
+    private GameObject placementPreviewObject;
     private Vector3 baseLocalPosition;
 
     public Vector2Int Coordinate => cell != null ? cell.coordinate : Vector2Int.zero;
@@ -70,12 +76,187 @@ public sealed class TileView : MonoBehaviour
         SetTilePrefabTint(color);
     }
 
+    public void ShowPlacementPreview(TileType tileType, TileType resourceType, float alpha)
+    {
+        ClearPlacementPreview();
+
+        if (tileType == TileType.Empty)
+        {
+            return;
+        }
+
+        alpha = Mathf.Clamp01(alpha);
+        placementPreviewObject = new GameObject("PlacementPreview");
+        placementPreviewObject.transform.SetParent(transform, false);
+        placementPreviewObject.transform.localPosition = Vector3.zero;
+        placementPreviewObject.transform.localRotation = Quaternion.identity;
+        placementPreviewObject.transform.localScale = Vector3.one;
+
+        var prefab = board != null ? board.GetTilePrefab(tileType) : null;
+        if (prefab != null)
+        {
+            var tileObject = Instantiate(prefab, placementPreviewObject.transform);
+            tileObject.name = "Tile";
+            tileObject.transform.localPosition = Vector3.zero;
+            tileObject.transform.localRotation = Quaternion.identity;
+            tileObject.transform.localScale = Vector3.one;
+            DisablePreviewColliders(tileObject);
+
+            var renderers = tileObject.GetComponentsInChildren<SpriteRenderer>(true);
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                ApplyPreviewRenderer(renderers[i], alpha, 18 + i);
+            }
+
+            UpdatePreviewLabels(tileObject, TileType.Empty, alpha);
+        }
+        else
+        {
+            var renderer = placementPreviewObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = board != null ? board.GetTileSprite(tileType) : null;
+            renderer.color = ApplyAlpha(board != null ? board.GetTint(tileType) : BoardManager.GetColor(tileType), alpha);
+            renderer.sortingOrder = 18;
+        }
+
+    }
+
+    public void ClearPlacementPreview()
+    {
+        if (placementPreviewObject == null)
+        {
+            return;
+        }
+
+        if (Application.isPlaying)
+        {
+            Destroy(placementPreviewObject);
+        }
+        else
+        {
+            DestroyImmediate(placementPreviewObject);
+        }
+
+        placementPreviewObject = null;
+    }
+
+    private void ApplyPreviewRenderer(SpriteRenderer renderer, float alpha, int sortingOrder)
+    {
+        if (renderer == null)
+        {
+            return;
+        }
+
+        renderer.color = ApplyAlpha(renderer.color, alpha);
+        renderer.sortingOrder = sortingOrder;
+    }
+
+    private Color ApplyAlpha(Color color, float alpha)
+    {
+        color.a *= alpha;
+        return color;
+    }
+
+    private void UpdatePreviewLabels(GameObject previewObject, TileType resourceType, float alpha)
+    {
+        var labels = previewObject.GetComponentsInChildren<TextMeshProUGUI>(true);
+        var showText = resourceType != TileType.Empty;
+        for (var i = 0; i < labels.Length; i++)
+        {
+            labels[i].raycastTarget = false;
+            labels[i].gameObject.SetActive(showText);
+            labels[i].text = showText ? BoardManager.GetDefaultResourceValue(resourceType).ToString() : string.Empty;
+            labels[i].color = ApplyAlpha(labels[i].color, alpha);
+        }
+    }
+
+    private void DisablePreviewColliders(GameObject previewObject)
+    {
+        var colliders2D = previewObject.GetComponentsInChildren<Collider2D>(true);
+        for (var i = 0; i < colliders2D.Length; i++)
+        {
+            colliders2D[i].enabled = false;
+        }
+
+        var colliders3D = previewObject.GetComponentsInChildren<Collider>(true);
+        for (var i = 0; i < colliders3D.Length; i++)
+        {
+            colliders3D[i].enabled = false;
+        }
+    }
+
     public void PlayPulse()
     {
         if (resourceRenderer != null)
         {
             StartCoroutine(Pulse(resourceRenderer.transform));
         }
+    }
+
+    public void PlayResourceScaleIn(float seconds = 0.22f)
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        if (resourceScaleInAnimation != null)
+        {
+            StopCoroutine(resourceScaleInAnimation);
+        }
+
+        resourceScaleInAnimation = StartCoroutine(PlayResourceScaleInRoutine(seconds));
+    }
+
+    public void PlayYieldPopup(int amount)
+    {
+        if (!Application.isPlaying || amount <= 0)
+        {
+            return;
+        }
+
+        if (yieldPopupAnimation != null)
+        {
+            StopCoroutine(yieldPopupAnimation);
+            yieldPopupAnimation = null;
+        }
+
+        if (yieldPopupObject != null)
+        {
+            Destroy(yieldPopupObject);
+        }
+
+        yieldPopupObject = new GameObject("YieldPopup", typeof(RectTransform));
+        yieldPopupObject.transform.SetParent(transform, false);
+
+        var canvasRect = yieldPopupObject.GetComponent<RectTransform>();
+        canvasRect.sizeDelta = Vector2.one;
+        canvasRect.localPosition = Vector3.zero;
+
+        var canvas = yieldPopupObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 45;
+
+        var labelObject = new GameObject("YieldPopupText", typeof(RectTransform));
+        labelObject.transform.SetParent(yieldPopupObject.transform, false);
+
+        var labelRect = labelObject.GetComponent<RectTransform>();
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.pivot = new Vector2(0.5f, 0.5f);
+        labelRect.anchoredPosition = new Vector2(0f, 0.12f);
+        labelRect.sizeDelta = Vector2.zero;
+
+        var label = labelObject.AddComponent<TextMeshProUGUI>();
+        label.alignment = TextAlignmentOptions.Center;
+        label.fontSize = 0.65f;
+        label.fontStyle = FontStyles.Bold;
+        label.text = "+" + amount;
+        label.color = BoardManager.GetColor(TileType.Wheat);
+        label.raycastTarget = false;
+        label.enableWordWrapping = false;
+
+        yieldPopupAnimation = StartCoroutine(PlayYieldPopupRoutine(yieldPopupObject, label, labelRect));
     }
 
     public void PlayWaterEffect(Vector2Int direction)
@@ -114,17 +295,20 @@ public sealed class TileView : MonoBehaviour
         bounceAnimation = StartCoroutine(Bounce(height, seconds, delay));
     }
 
-    public IEnumerator PlayClear(float seconds)
+    public IEnumerator PlayClear(float seconds, bool keepResourceVisuals = false)
     {
         StopIdleAnimation();
 
         var renderers = new List<SpriteRenderer>();
         AddRenderer(renderers, tileRenderer);
-        AddRenderer(renderers, resourceRenderer);
         AddChildRenderers(renderers, tilePrefabInstance != null ? tilePrefabInstance.transform : null);
 
         var resourceSprites = transform.Find("ResourceSprites");
-        AddChildRenderers(renderers, resourceSprites);
+        if (!keepResourceVisuals)
+        {
+            AddRenderer(renderers, resourceRenderer);
+            AddChildRenderers(renderers, resourceSprites);
+        }
 
         if (renderers.Count == 0)
         {
@@ -171,7 +355,14 @@ public sealed class TileView : MonoBehaviour
             renderers[i].transform.localScale = scales[i];
         }
 
-        HideChildRenderers("ResourceSprites");
+        if (keepResourceVisuals)
+        {
+            UpdateTileVisual();
+        }
+        else
+        {
+            HideChildRenderers("ResourceSprites");
+        }
     }
 
     private void BuildVisuals()
@@ -395,22 +586,22 @@ public sealed class TileView : MonoBehaviour
 
         if (cell.resourceType == TileType.Empty)
         {
-            resourceRenderer.transform.localPosition = Vector3.zero;
-            resourceRenderer.transform.localScale = GetResourceScale();
+            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
+            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
             return;
         }
 
         if (cell.resourceType != TileType.Wheat && cell.resourceType != TileType.Flower)
         {
-            resourceRenderer.transform.localPosition = Vector3.zero;
-            resourceRenderer.transform.localScale = GetResourceScale();
+            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
+            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
             resourceSpritePositions.Add(Vector3.zero);
             return;
         }
 
         AddResourceSpritePositions(cell.resourceValue);
-        resourceRenderer.transform.localPosition = resourceSpritePositions[0];
-        resourceRenderer.transform.localScale = GetResourceScale();
+        resourceRenderer.transform.localPosition = GetResourcePosition(resourceSpritePositions[0]);
+        resourceRenderer.transform.localScale = GetAnimatedResourceScale();
 
         if (resourceSpritePositions.Count <= 1)
         {
@@ -424,8 +615,8 @@ public sealed class TileView : MonoBehaviour
         {
             var marker = new GameObject(cell.resourceType + "_" + i);
             marker.transform.SetParent(root, false);
-            marker.transform.localPosition = resourceSpritePositions[i];
-            marker.transform.localScale = GetResourceScale();
+            marker.transform.localPosition = GetResourcePosition(resourceSpritePositions[i]);
+            marker.transform.localScale = GetAnimatedResourceScale();
 
             var markerRenderer = marker.AddComponent<SpriteRenderer>();
             markerRenderer.sprite = board.GetTileSprite(cell.resourceType);
@@ -438,6 +629,16 @@ public sealed class TileView : MonoBehaviour
     private Vector3 GetResourceScale()
     {
         return Vector3.one * Mathf.Max(0.01f, resourceScale);
+    }
+
+    private Vector3 GetAnimatedResourceScale()
+    {
+        return GetResourceScale() * resourceScaleInAmount;
+    }
+
+    private Vector3 GetResourcePosition(Vector3 position)
+    {
+        return position + Vector3.up * resourceYOffset;
     }
 
     private void AddResourceSpritePositions(int count)
@@ -485,6 +686,49 @@ public sealed class TileView : MonoBehaviour
         target.localScale = baseScale;
     }
 
+    private void ApplyResourceScaleToCurrentSprites()
+    {
+        var scale = GetAnimatedResourceScale();
+
+        if (resourceRenderer != null)
+        {
+            resourceRenderer.transform.localScale = scale;
+        }
+
+        var resourceSprites = transform.Find("ResourceSprites");
+        if (resourceSprites == null)
+        {
+            return;
+        }
+
+        var spriteRenderers = resourceSprites.GetComponentsInChildren<SpriteRenderer>(true);
+        for (var i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] != null)
+            {
+                spriteRenderers[i].transform.localScale = scale;
+            }
+        }
+    }
+
+    private IEnumerator PlayResourceScaleInRoutine(float seconds)
+    {
+        seconds = Mathf.Max(0.01f, seconds);
+        resourceScaleInAmount = 0f;
+        ApplyResourceScaleToCurrentSprites();
+
+        for (var elapsed = 0f; elapsed < seconds; elapsed += Time.deltaTime)
+        {
+            resourceScaleInAmount = Mathf.SmoothStep(0f, 1f, elapsed / seconds);
+            ApplyResourceScaleToCurrentSprites();
+            yield return null;
+        }
+
+        resourceScaleInAmount = 1f;
+        ApplyResourceScaleToCurrentSprites();
+        resourceScaleInAnimation = null;
+    }
+
     private IEnumerator Bounce(float height, float seconds, float delay)
     {
         if (delay > 0f)
@@ -511,6 +755,34 @@ public sealed class TileView : MonoBehaviour
 
         transform.localPosition = from;
         bounceAnimation = null;
+    }
+
+    private IEnumerator PlayYieldPopupRoutine(GameObject popupObject, TextMeshProUGUI label, RectTransform labelRect)
+    {
+        var start = labelRect.anchoredPosition;
+        var end = start + Vector2.up * 0.42f;
+        var startColor = label.color;
+        var duration = 0.7f;
+
+        for (var elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            var t = Mathf.Clamp01(elapsed / duration);
+            labelRect.anchoredPosition = Vector2.Lerp(start, end, Mathf.SmoothStep(0f, 1f, t));
+
+            var color = startColor;
+            color.a = Mathf.Lerp(1f, 0f, t);
+            label.color = color;
+
+            yield return null;
+        }
+
+        if (yieldPopupObject == popupObject)
+        {
+            yieldPopupObject = null;
+            yieldPopupAnimation = null;
+        }
+
+        Destroy(popupObject);
     }
 
     private void UpdateResourceValueLabel()

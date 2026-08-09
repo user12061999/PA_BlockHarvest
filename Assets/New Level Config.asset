@@ -34,6 +34,8 @@ MonoBehaviour:
   flowerGoal: 0
   fishGoal: 0
   maxPlacements: 12
+  waterBounceHeight: 0.5
+  waterBounceSeconds: 0.24
   useCustomBlockSpawns: 1
   blockSpawnTurns:
   - blocks:
