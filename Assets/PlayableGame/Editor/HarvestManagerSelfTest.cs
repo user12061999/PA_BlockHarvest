@@ -14,6 +14,7 @@ public static class HarvestManagerSelfTest
         TestFish();
         TestFlower();
         TestWaterFlower();
+        TestWaterBoostsMultipleResources();
         TestWaterNetworkWheat();
         TestWaterNetworkFlower();
         TestDirt3x3Growth();
@@ -108,6 +109,25 @@ public static class HarvestManagerSelfTest
             context.harvest.ResolvePlacement(context.board, One(new Vector2Int(1, 0)));
 
             Check(context.board.GetCell(new Vector2Int(0, 0)).resourceValue == 2, "Water should increase flower resource value.");
+        }
+        finally
+        {
+            context.Destroy();
+        }
+    }
+
+    private static void TestWaterBoostsMultipleResources()
+    {
+        var context = CreateContext();
+        try
+        {
+            context.board.PlaceTile(new Vector2Int(0, 0), TileType.Water);
+            context.board.PlaceTile(new Vector2Int(1, 0), TileType.Dirt, TileType.Wheat);
+            context.board.PlaceTile(new Vector2Int(0, 1), TileType.Grass, TileType.Flower);
+            context.harvest.ResolvePlacement(context.board, One(new Vector2Int(0, 0)));
+
+            Check(context.board.GetCell(new Vector2Int(1, 0)).resourceValue == 2, "One water should increase neighboring wheat yield.");
+            Check(context.board.GetCell(new Vector2Int(0, 1)).resourceValue == 2, "One water should increase neighboring flower yield.");
         }
         finally
         {

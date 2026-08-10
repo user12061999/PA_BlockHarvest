@@ -11,6 +11,8 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private float gridCellSize = 1f;
     [SerializeField] private float pieceSize = 0.48f;
     [SerializeField] private float spawnCellScale = 0.48f;
+    [Min(0.01f)]
+    [SerializeField] private float trayTileHorizontalSpacing = 0.92f;
     [SerializeField] private float minSpawnSpacingInCells = 1.8f;
     [SerializeField] private float dragOffsetY = 0.6f;
     [SerializeField] private float trayHeightInCells = 2f;
@@ -92,15 +94,7 @@ public sealed class BlockManager : MonoBehaviour
         customSpawnTurnIndex = 0;
         tutorialDismissed = false;
         CreatePlayableBlocks();
-        if (playableUI == null)
-        {
-            playableUI = FindObjectOfType<PlayableUI>();
-        }
-
-        if (playableUI == null)
-        {
-            ShowPlacementTutorial();
-        }
+        ShowPlacementTutorial();
     }
 
     public List<BlockData> CreateExampleBlocks()
@@ -179,7 +173,7 @@ public sealed class BlockManager : MonoBehaviour
         blockObject.transform.position = GetSpawnPosition(index);
 
         var blockPiece = blockObject.AddComponent<BlockPiece>();
-        blockPiece.SetData(blockData, pieceSize, boardManager, harvestManager, this, dragOffsetY);
+        blockPiece.SetData(blockData, pieceSize, trayTileHorizontalSpacing, boardManager, harvestManager, this, dragOffsetY);
         activeBlocks.Add(blockPiece);
     }
 
@@ -368,7 +362,7 @@ public sealed class BlockManager : MonoBehaviour
     {
         var cell = board.CellVisualSize;
         var spacing = Mathf.Max(board.VisibleBoardVisualSize.x / 3f, cell * minSpawnSpacingInCells);
-        var maxBlockWidth = cell * spawnCellScale * 3f;
+        var maxBlockWidth = cell * spawnCellScale * ((3f - 1f) * Mathf.Max(0.01f, trayTileHorizontalSpacing) + 1f);
         return spacing * 2f + maxBlockWidth;
     }
 

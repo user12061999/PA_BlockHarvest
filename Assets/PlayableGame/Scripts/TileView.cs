@@ -6,10 +6,14 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class TileView : MonoBehaviour
 {
+    private const int PlacementPreviewSortingOrder = 5;
+
     [Header("Designed Tile References")]
     [SerializeField] private SpriteRenderer tileRenderer;
     [SerializeField] private SpriteRenderer resourceRenderer;
     [SerializeField] private TextMeshProUGUI resourceValueLabel;
+    [Header("Grid Cell Visual")]
+    [SerializeField] private Color gridCellColor = Color.white;
     [Header("Resource Visual")]
     [SerializeField] private float resourceScale = 1.2f;
     [SerializeField] private float resourceYOffset = 0.1f;
@@ -105,7 +109,7 @@ public sealed class TileView : MonoBehaviour
             var renderers = tileObject.GetComponentsInChildren<SpriteRenderer>(true);
             for (var i = 0; i < renderers.Length; i++)
             {
-                ApplyPreviewRenderer(renderers[i], alpha, 18 + i);
+                ApplyPreviewRenderer(renderers[i], alpha, PlacementPreviewSortingOrder + i);
             }
 
             UpdatePreviewLabels(tileObject, TileType.Empty, alpha);
@@ -115,7 +119,7 @@ public sealed class TileView : MonoBehaviour
             var renderer = placementPreviewObject.AddComponent<SpriteRenderer>();
             renderer.sprite = board != null ? board.GetTileSprite(tileType) : null;
             renderer.color = ApplyAlpha(board != null ? board.GetTint(tileType) : BoardManager.GetColor(tileType), alpha);
-            renderer.sortingOrder = 18;
+            renderer.sortingOrder = PlacementPreviewSortingOrder;
         }
 
     }
@@ -192,7 +196,7 @@ public sealed class TileView : MonoBehaviour
         }
     }
 
-    public void PlayResourceScaleIn(float seconds = 0.22f)
+    public void PlayResourceScaleIn(float seconds = 0.22f, float peakMultiplier = 1.18f)
     {
         if (!Application.isPlaying)
         {
@@ -204,10 +208,10 @@ public sealed class TileView : MonoBehaviour
             StopCoroutine(resourceScaleInAnimation);
         }
 
-        resourceScaleInAnimation = StartCoroutine(PlayResourceScaleInRoutine(seconds));
+        resourceScaleInAnimation = StartCoroutine(PlayResourceScaleInRoutine(seconds, peakMultiplier));
     }
 
-    public void PlayYieldPopup(int amount)
+    public void PlayYieldPopup(int amount, GameObject popupPrefab = null)
     {
         if (!Application.isPlaying || amount <= 0)
         {
@@ -223,6 +227,17 @@ public sealed class TileView : MonoBehaviour
         if (yieldPopupObject != null)
         {
             Destroy(yieldPopupObject);
+        }
+
+        if (popupPrefab != null)
+        {
+            yieldPopupObject = Instantiate(popupPrefab, transform);
+            yieldPopupObject.name = "YieldPopup";
+            yieldPopupObject.transform.localPosition = Vector3.zero;
+            yieldPopupObject.transform.localRotation = Quaternion.identity;
+            SetYieldPopupText(yieldPopupObject, amount);
+            yieldPopupAnimation = StartCoroutine(PlayYieldPopupRoutine(yieldPopupObject));
+            return;
         }
 
         yieldPopupObject = new GameObject("YieldPopup", typeof(RectTransform));
@@ -457,7 +472,7 @@ public sealed class TileView : MonoBehaviour
             ClearTilePrefab();
             tileRenderer.enabled = true;
             tileRenderer.sprite = tileSprite;
-            tileRenderer.color = board.GetTint(cell.tileType);
+            tileRenderer.color = GetTileRendererColor(cell.tileType);
             return;
         }
 
@@ -476,6 +491,12 @@ public sealed class TileView : MonoBehaviour
 
         RestoreTilePrefabColors();
         ApplyTilePrefabSprite(tileSprite);
+    }
+
+    private Color GetTileRendererColor(TileType tileType)
+    {
+        var tint = board != null ? board.GetTint(tileType) : BoardManager.GetColor(tileType);
+        return tileType == TileType.Empty ? tint * gridCellColor : tint;
     }
 
     private void ClearTilePrefab()
@@ -711,15 +732,24 @@ public sealed class TileView : MonoBehaviour
         }
     }
 
-    private IEnumerator PlayResourceScaleInRoutine(float seconds)
+    private IEnumerator PlayResourceScaleInRoutine(float seconds, float peakMultiplier)
     {
         seconds = Mathf.Max(0.01f, seconds);
-        resourceScaleInAmount = 0f;
+        peakMultiplier = Mathf.Max(1f, peakMultiplier);
+        resourceScaleInAmount = 1f;
         ApplyResourceScaleToCurrentSprites();
 
-        for (var elapsed = 0f; elapsed < seconds; elapsed += Time.deltaTime)
+        var halfSeconds = seconds * 0.5f;
+        for (var elapsed = 0f; elapsed < halfSeconds; elapsed += Time.deltaTime)
         {
-            resourceScaleInAmount = Mathf.SmoothStep(0f, 1f, elapsed / seconds);
+            resourceScaleInAmount = Mathf.Lerp(1f, peakMultiplier, Mathf.SmoothStep(0f, 1f, elapsed / halfSeconds));
+            ApplyResourceScaleToCurrentSprites();
+            yield return null;
+        }
+
+        for (var elapsed = 0f; elapsed < halfSeconds; elapsed += Time.deltaTime)
+        {
+            resourceScaleInAmount = Mathf.Lerp(peakMultiplier, 1f, Mathf.SmoothStep(0f, 1f, elapsed / halfSeconds));
             ApplyResourceScaleToCurrentSprites();
             yield return null;
         }
@@ -783,6 +813,73 @@ public sealed class TileView : MonoBehaviour
         }
 
         Destroy(popupObject);
+    }
+
+    private IEnumerator PlayYieldPopupRoutine(GameObject popupObject)
+    {
+        var start = popupObject.transform.localPosition;
+        var end = start + Vector3.up * 0.42f;
+        var textRenderers = popupObject.GetComponentsInChildren<TMP_Text>(true);
+        var textColors = new Color[textRenderers.Length];
+        for (var i = 0; i < textRenderers.Length; i++)
+        {
+            textColors[i] = textRenderers[i].color;
+        }
+
+        var spriteRenderers = popupObject.GetComponentsInChildren<SpriteRenderer>(true);
+        var spriteColors = new Color[spriteRenderers.Length];
+        for (var i = 0; i < spriteRenderers.Length; i++)
+        {
+            spriteColors[i] = spriteRenderers[i].color;
+        }
+
+        var duration = 0.7f;
+        for (var elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            var t = Mathf.Clamp01(elapsed / duration);
+            popupObject.transform.localPosition = Vector3.Lerp(start, end, Mathf.SmoothStep(0f, 1f, t));
+            ApplyPopupAlpha(textRenderers, textColors, spriteRenderers, spriteColors, 1f - t);
+            yield return null;
+        }
+
+        if (yieldPopupObject == popupObject)
+        {
+            yieldPopupObject = null;
+            yieldPopupAnimation = null;
+        }
+
+        Destroy(popupObject);
+    }
+
+    private void SetYieldPopupText(GameObject popupObject, int amount)
+    {
+        var texts = popupObject.GetComponentsInChildren<TMP_Text>(true);
+        for (var i = 0; i < texts.Length; i++)
+        {
+            texts[i].text = "+" + amount;
+        }
+    }
+
+    private void ApplyPopupAlpha(
+        TMP_Text[] textRenderers,
+        Color[] textColors,
+        SpriteRenderer[] spriteRenderers,
+        Color[] spriteColors,
+        float alpha)
+    {
+        for (var i = 0; i < textRenderers.Length; i++)
+        {
+            var color = textColors[i];
+            color.a *= alpha;
+            textRenderers[i].color = color;
+        }
+
+        for (var i = 0; i < spriteRenderers.Length; i++)
+        {
+            var color = spriteColors[i];
+            color.a *= alpha;
+            spriteRenderers[i].color = color;
+        }
     }
 
     private void UpdateResourceValueLabel()

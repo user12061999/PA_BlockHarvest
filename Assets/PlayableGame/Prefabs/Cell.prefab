@@ -139,6 +139,7 @@ MonoBehaviour:
   tileRenderer: {fileID: 5907017374369569684}
   resourceRenderer: {fileID: 6934101767209439391}
   resourceValueLabel: {fileID: 4408627616694855075}
+  gridCellColor: {r: 0.6901961, g: 0.6901961, b: 0.6901961, a: 1}
   resourceScale: 1.2
   resourceYOffset: 0.1
 --- !u!1 &1510381713604157427

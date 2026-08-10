@@ -126,7 +126,9 @@
             ],
             "includes": [
                 "Assets/Resources/DOTweenSettings.asset",
-                "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+                "Assets/TextMesh Pro/Resources/TMP Settings.asset",
+                "Assets/TextMesh Pro/Fonts/mplus-1c-black.ttf",
+                "Assets/TextMesh Pro/Fonts/mplus-1c-black SDF.asset"
             ]
         },
         "scenes": [
@@ -6336,10 +6338,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.UI.LayoutElement",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.UI.ToggleGroup",
                 "excluded": true
             },
@@ -6485,7 +6483,7 @@
             },
             {
                 "name": "UnityEngine.UI.ILayoutIgnorer",
-                "excluded": true
+                "excluded": false
             },
             {
                 "name": "UnityEngine.UI.Image.FillMethod",
@@ -16987,7 +16985,7 @@
                     },
                     {
                         "name": "SetAsFirstSibling",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetEnumerator",
@@ -18833,7 +18831,7 @@
                     },
                     {
                         "name": "color#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "color#set",
@@ -18869,7 +18867,7 @@
                     },
                     {
                         "name": "OnPopulateMesh",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetMaterialDirty",
@@ -18885,7 +18883,7 @@
                     },
                     {
                         "name": "GetPixelAdjustedRect",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnSelect",
@@ -19837,7 +19835,7 @@
                     },
                     {
                         "name": "fontSharedMaterial#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontSharedMaterial#set",
@@ -20025,7 +20023,7 @@
                     },
                     {
                         "name": "isUsingBold#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "horizontalAlignment#get",
@@ -20153,7 +20151,7 @@
                     },
                     {
                         "name": "extraPadding#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "extraPadding#set",
@@ -20329,7 +20327,7 @@
                     },
                     {
                         "name": "havePropertiesChanged#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isUsingLegacyAnimationComponent#get",
@@ -21339,11 +21337,11 @@
                     },
                     {
                         "name": "fallbackFontAssets#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "matchMaterialPreset#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "defaultSpriteAsset#get",
@@ -23035,7 +23033,7 @@
                 "instanceMethods": [
                     {
                         "name": "name#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "name#set",
@@ -23059,7 +23057,7 @@
                     },
                     {
                         "name": "shader#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "shader#set",
@@ -23107,7 +23105,7 @@
                     },
                     {
                         "name": "$ctor1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "$ctor2",
@@ -23215,11 +23213,11 @@
                     },
                     {
                         "name": "SetTexture$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetTexture",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetTextureScale$1",
@@ -23347,7 +23345,7 @@
                     },
                     {
                         "name": "ComputeCRC",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -27137,15 +27135,15 @@
                     },
                     {
                         "name": "AddTriangle",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddVert",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddVert$1",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddVert$2",
@@ -27157,7 +27155,7 @@
                     },
                     {
                         "name": "Clear",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddUIVertexQuad",
@@ -27181,7 +27179,7 @@
                     },
                     {
                         "name": "FillMesh",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FromMesh",
@@ -28355,11 +28353,11 @@
                     },
                     {
                         "name": "GetFallbackMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddFallbackMaterialReference",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveFallbackMaterialReference",
@@ -28367,11 +28365,11 @@
                     },
                     {
                         "name": "CleanupFallbackMaterials",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ReleaseFallbackMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CopyMaterialPresetProperties",
@@ -28389,7 +28387,7 @@
                     },
                     {
                         "name": "getDefaultValue",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "$ctor1",
@@ -28421,7 +28419,7 @@
                     },
                     {
                         "name": "ClearUnusedVertices",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ClearUnusedVertices$1",
@@ -28591,7 +28589,7 @@
                 "instanceMethods": [
                     {
                         "name": "AddSubTextObject",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fontAsset#get",
@@ -28623,7 +28621,7 @@
                     },
                     {
                         "name": "sharedMaterial#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "sharedMaterial#set",
@@ -28635,7 +28633,7 @@
                     },
                     {
                         "name": "fallbackMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "fallbackSourceMaterial#get",
@@ -28643,11 +28641,11 @@
                     },
                     {
                         "name": "fallbackSourceMaterial#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "materialForRendering#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "isDefaultMaterial#get",
@@ -28659,7 +28657,7 @@
                     },
                     {
                         "name": "padding#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "padding#set",
@@ -28667,7 +28665,7 @@
                     },
                     {
                         "name": "mesh#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "mesh#set",
@@ -28675,19 +28673,19 @@
                     },
                     {
                         "name": "textComponent#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDestroy",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnTransformParentChanged",
@@ -28695,11 +28693,11 @@
                     },
                     {
                         "name": "GetModifiedMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetPaddingForMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetPaddingForMaterial$1",
@@ -28715,7 +28713,7 @@
                     },
                     {
                         "name": "SetVerticesDirty",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetLayoutDirty",
@@ -28723,7 +28721,7 @@
                     },
                     {
                         "name": "SetMaterialDirty",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "SetPivotDirty",
@@ -28751,11 +28749,11 @@
                     },
                     {
                         "name": "UpdateMaterial",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RecalculateClipping",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetMaterial",
@@ -28775,7 +28773,7 @@
                     },
                     {
                         "name": "SetSharedMaterial",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -29463,7 +29461,7 @@
                     },
                     {
                         "name": "atlasPopulationMode#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "atlasPopulationMode#set",
@@ -29715,7 +29713,7 @@
                     },
                     {
                         "name": "TryAddCharacterInternal",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "TryGetCharacter_and_QueueRenderToTexture",
@@ -30203,6 +30201,14 @@
                     },
                     {
                         "name": "GetBounds",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetTileHorizontalSpacing",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTileLocalPosition",
                         "excluded": false
                     }
                 ]
@@ -30850,6 +30856,10 @@
                     {
                         "name": "ShowWinCardAfterTruckDelay",
                         "excluded": false
+                    },
+                    {
+                        "name": "HideTruckAtExit",
+                        "excluded": false
                     }
                 ]
             },
@@ -30900,14 +30910,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "init",
-                        "excluded": false
-                    },
-                    {
-                        "name": "Update",
-                        "excluded": false
-                    },
-                    {
                         "name": "HideTutorial",
                         "excluded": false
                     },
@@ -30920,19 +30922,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "HasTouchBegan",
-                        "excluded": true
-                    },
-                    {
-                        "name": "BindTutorialDismissButton",
-                        "excluded": false
-                    },
-                    {
-                        "name": "FindTmpText",
-                        "excluded": false
-                    },
-                    {
-                        "name": "SetTutorialCounts",
+                        "name": "HideLegacyTutorialPanel",
                         "excluded": false
                     }
                 ]
@@ -31141,6 +31131,38 @@
                     },
                     {
                         "name": "GetResourcePosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayResourceScaleIn",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTileRendererColor",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAnimatedResourceScale",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyResourceScaleToCurrentSprites",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayResourceScaleInRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayYieldPopupRoutine$1",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetYieldPopupText",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ApplyPopupAlpha",
                         "excluded": false
                     }
                 ]
@@ -32465,6 +32487,22 @@
                     },
                     {
                         "name": "SetVisible",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetStartPosition",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StopRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetRoutine",
                         "excluded": false
                     }
                 ]
@@ -38298,6 +38336,104 @@
                         "excluded": true
                     }
                 ]
+            },
+            {
+                "className": "UnityEngine.UI.LayoutElement",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "minWidth#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "minWidth#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "minHeight#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "minHeight#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preferredWidth#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preferredWidth#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preferredHeight#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "preferredHeight#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "flexibleWidth#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "flexibleWidth#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "flexibleHeight#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "flexibleHeight#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "layoutPriority#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ignoreLayout#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ignoreLayout#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnEnable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDisable",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OnDidApplyAnimationProperties",
+                        "excluded": true
+                    },
+                    {
+                        "name": "OnTransformParentChanged",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CalculateLayoutInputHorizontal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CalculateLayoutInputVertical",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetDirty",
+                        "excluded": false
+                    }
+                ]
             }
         ],
         "stubberDataList": [],
@@ -38365,6 +38501,16 @@
                         "script": "",
                         "ext": "",
                         "name": "Assets/TextMesh Pro/Fonts/NotoSans-Bold SDF.asset"
+                    },
+                    {
+                        "maxWidth": 512,
+                        "maxHeight": 512,
+                        "format": "png32",
+                        "compression": "none",
+                        "quality": 65,
+                        "script": "",
+                        "ext": "",
+                        "name": "Assets/TextMesh Pro/Fonts/mplus-1c-black SDF.asset"
                     }
                 ]
             },

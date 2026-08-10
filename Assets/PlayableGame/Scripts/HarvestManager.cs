@@ -765,6 +765,7 @@ public sealed class HarvestManager : MonoBehaviour
 
         ScheduleWinCardAfterTruckStart();
         yield return MoveWorld(truckTransform, truckTransform.position, truckExitWorldPosition, truckMoveSeconds);
+        HideTruckAtExit(truckTransform);
     }
 
     private void ScheduleWinCardAfterTruckStart()
@@ -860,6 +861,23 @@ public sealed class HarvestManager : MonoBehaviour
 
         spawnedTruck = Instantiate(truckPrefab);
         return spawnedTruck.transform;
+    }
+
+    private void HideTruckAtExit(Transform truckTransform)
+    {
+        if (truckTransform == null)
+        {
+            return;
+        }
+
+        if (spawnedTruck != null && truckTransform.gameObject == spawnedTruck)
+        {
+            DestroyObject(spawnedTruck);
+            spawnedTruck = null;
+            return;
+        }
+
+        truckTransform.gameObject.SetActive(false);
     }
 
     private IEnumerator MoveWorld(Transform target, Vector3 from, Vector3 to, float seconds)

@@ -49,17 +49,18 @@ public sealed class ResourceGoalView : MonoBehaviour
         }
 
         SetValue(0, 0);
+        
     }
 
     public void SetValue(int current, int goal)
     {
         IsComplete = goal <= 0 || current >= goal;
 
-        if (valueLabel != null)
+        /*if (valueLabel != null)
         {
             valueLabel.text = current + "/" + goal;
-        }
-
+        }*/
+        valueLabel.text =""+goal;
         if (completeRenderer != null)
         {
             completeRenderer.gameObject.SetActive(IsComplete);

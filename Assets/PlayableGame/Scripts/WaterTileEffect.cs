@@ -11,7 +11,10 @@ public sealed class WaterTileEffect : MonoBehaviour
     [SerializeField] private float seconds = 0.35f;
     [SerializeField] private float pushDistance = 0.25f;
 
-    private Coroutine routine;
+    private Coroutine upRoutine;
+    private Coroutine rightRoutine;
+    private Coroutine downRoutine;
+    private Coroutine leftRoutine;
     private Vector3 upStart;
     private Vector3 rightStart;
     private Vector3 downStart;
@@ -46,18 +49,13 @@ public sealed class WaterTileEffect : MonoBehaviour
             return;
         }
 
-        if (routine != null)
-        {
-            StopCoroutine(routine);
-        }
-
-        routine = StartCoroutine(PlayRoutine(renderer, GetPushDirection(direction)));
+        StopRoutine(direction);
+        SetRoutine(direction, StartCoroutine(PlayRoutine(renderer, GetPushDirection(direction), GetStartPosition(direction), direction)));
     }
 
-    private IEnumerator PlayRoutine(SpriteRenderer renderer, Vector3 pushDirection)
+    private IEnumerator PlayRoutine(SpriteRenderer renderer, Vector3 pushDirection, Vector3 start, Vector2Int direction)
     {
-        HideAll();
-        var start = renderer.transform.localPosition;
+        renderer.transform.localPosition = start;
         var end = start + pushDirection * pushDistance;
         var color = renderer.color;
         renderer.enabled = true;
@@ -79,7 +77,7 @@ public sealed class WaterTileEffect : MonoBehaviour
         renderer.transform.localPosition = start;
         renderer.color = color;
         renderer.enabled = false;
-        routine = null;
+        SetRoutine(direction, null);
     }
 
     private SpriteRenderer GetRenderer(Vector2Int direction)
@@ -100,6 +98,63 @@ public sealed class WaterTileEffect : MonoBehaviour
         }
 
         return direction.y > 0 ? Vector3.up : Vector3.down;
+    }
+
+    private Vector3 GetStartPosition(Vector2Int direction)
+    {
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            return direction.x > 0 ? rightStart : leftStart;
+        }
+
+        return direction.y > 0 ? upStart : downStart;
+    }
+
+    private void StopRoutine(Vector2Int direction)
+    {
+        var routine = GetRoutine(direction);
+        if (routine != null)
+        {
+            StopCoroutine(routine);
+            SetVisible(GetRenderer(direction), false, GetStartPosition(direction));
+            SetRoutine(direction, null);
+        }
+    }
+
+    private Coroutine GetRoutine(Vector2Int direction)
+    {
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            return direction.x > 0 ? rightRoutine : leftRoutine;
+        }
+
+        return direction.y > 0 ? upRoutine : downRoutine;
+    }
+
+    private void SetRoutine(Vector2Int direction, Coroutine routine)
+    {
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            if (direction.x > 0)
+            {
+                rightRoutine = routine;
+            }
+            else
+            {
+                leftRoutine = routine;
+            }
+
+            return;
+        }
+
+        if (direction.y > 0)
+        {
+            upRoutine = routine;
+        }
+        else
+        {
+            downRoutine = routine;
+        }
     }
 
     private void HideAll()

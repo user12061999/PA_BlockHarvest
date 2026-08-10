@@ -25,6 +25,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5684946427346221122, guid: 9f11aae2200404dfcbc5b35086a4eda9, type: 3}
+      propertyPath: startDelay.scalar
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5684946427346221122, guid: 9f11aae2200404dfcbc5b35086a4eda9, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.08018869
       objectReference: {fileID: 0}

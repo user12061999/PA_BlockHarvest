@@ -17,6 +17,8 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector2Int targetAnchor;
     private bool hasTarget;
     private float pieceSize;
+    private float trayTileHorizontalSpacing = 1f;
+    private float currentTileHorizontalSpacing = 1f;
     private float dragOffsetY;
     private Vector3 trayScale;
     private Vector2 visualCenter;
@@ -28,10 +30,12 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     public Vector2Int TargetOrigin => targetOrigin;
     public bool HasTarget => hasTarget;
 
-    public void SetData(BlockData blockData, float pieceSize, BoardManager boardManager, HarvestManager harvestManager, BlockManager blockManager, float dragOffsetY)
+    public void SetData(BlockData blockData, float pieceSize, float trayTileHorizontalSpacing, BoardManager boardManager, HarvestManager harvestManager, BlockManager blockManager, float dragOffsetY)
     {
         data = blockData;
         this.pieceSize = pieceSize;
+        this.trayTileHorizontalSpacing = Mathf.Max(0.01f, trayTileHorizontalSpacing);
+        currentTileHorizontalSpacing = this.trayTileHorizontalSpacing;
         this.dragOffsetY = dragOffsetY;
         this.boardManager = boardManager;
         this.harvestManager = harvestManager;
@@ -162,6 +166,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         }
 
         hasTarget = false;
+        SetTileHorizontalSpacing(trayTileHorizontalSpacing);
         transform.position = trayPosition;
         transform.localScale = trayScale;
         SetSortingOrder(10);
@@ -194,8 +199,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             var pieceObject = prefab != null ? Instantiate(prefab) : new GameObject("Piece_" + i);
             pieceObject.name = "Piece_" + i;
             pieceObject.transform.SetParent(transform, false);
-            var centeredPosition = (Vector2)data.positions[i] - visualCenter;
-            pieceObject.transform.localPosition = new Vector3(centeredPosition.x, centeredPosition.y, 0f) * pieceSize;
+            pieceObject.transform.localPosition = GetTileLocalPosition(data.positions[i]);
             pieceObject.transform.localScale = Vector3.one * pieceSize * 0.92f;
 
             var renderers = pieceObject.GetComponentsInChildren<SpriteRenderer>();
@@ -264,6 +268,29 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         }
     }
 
+    private void SetTileHorizontalSpacing(float horizontalSpacing)
+    {
+        if (data == null || data.positions == null)
+        {
+            return;
+        }
+
+        currentTileHorizontalSpacing = Mathf.Max(0.01f, horizontalSpacing);
+        for (var i = 0; i < data.positions.Count && i < transform.childCount; i++)
+        {
+            transform.GetChild(i).localPosition = GetTileLocalPosition(data.positions[i]);
+        }
+
+        ResizeCollider();
+    }
+
+    private Vector3 GetTileLocalPosition(Vector2Int position)
+    {
+        var centeredPosition = (Vector2)position - visualCenter;
+        centeredPosition.x *= currentTileHorizontalSpacing;
+        return new Vector3(centeredPosition.x, centeredPosition.y, 0f) * pieceSize;
+    }
+
     private Vector3 ScreenToWorld(PointerEventData eventData)
     {
         var camera = eventData.pressEventCamera != null ? eventData.pressEventCamera : Camera.main;
@@ -316,7 +343,9 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         Vector2Int max;
         GetBounds(out min, out max);
 
-        var size = (Vector2)(max - min + Vector2Int.one) * pieceSize;
+        var size = new Vector2(
+            (max.x - min.x) * currentTileHorizontalSpacing + 1f,
+            max.y - min.y + 1f) * pieceSize;
         collider.size = size;
         collider.offset = Vector2.zero;
     }

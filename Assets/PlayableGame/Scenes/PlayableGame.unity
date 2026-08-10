@@ -303,11 +303,6 @@ MonoBehaviour:
   objectiveText: {fileID: 0}
   timerText: {fileID: 0}
   remainingMovesLabel: {fileID: 1049224389}
-  dismissTutorialOnScreenClick: 1
-  tutorialDismissInputDelay: 0.15
-  tutorialPanel: {fileID: 118441759}
-  tutorialMovesLabel: {fileID: 0}
-  tutorialGoalLabel: {fileID: 0}
   ctaPanel: {fileID: 0}
 --- !u!114 &44664882
 MonoBehaviour:
@@ -568,7 +563,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &118441760
 RectTransform:
   m_ObjectHideFlags: 0
@@ -775,7 +770,7 @@ MonoBehaviour:
   createVisuals: 1
   centerOnCamera: 1
   centerGameplayWithTray: 1
-  gameplayAnchorMin: {x: 0.05, y: 0.12}
+  gameplayAnchorMin: {x: 0.05, y: 0}
   gameplayAnchorMax: {x: 0.95, y: 0.78}
   fitGameplayToAnchors: 1
   gameplayAnchorPadding: 0.2
@@ -799,6 +794,9 @@ MonoBehaviour:
   bearSprite: {fileID: 21300000, guid: 083b8f82894e64569a38589c59974a24, type: 3}
   pigSprite: {fileID: 21300000, guid: f23f3d984625b46c98d62169dc134520, type: 3}
   yieldEffectPrefab: {fileID: 4354657355424194068, guid: e89049a977a3347e19317e83c08d483b, type: 3}
+  yieldPopupPrefab: {fileID: 2154454683351207885, guid: df6804546abf10e49b3a99d51bcee74b, type: 3}
+  resourceGainScaleMultiplier: 1.18
+  resourceGainScaleSeconds: 0.22
   clearResourceEffectPrefab: {fileID: 3868148230245356851, guid: e6f7d310cddd24d2d88383f27970dd29, type: 3}
   dirt3x3EffectPrefab: {fileID: 2419608504078280177, guid: b0e0692f4445d2541b216fd188287912, type: 3}
   waterSplashEffectPrefab: {fileID: 5183363717592586582, guid: 21456a7f75fb64f7a8102e36284bbc2a, type: 3}
@@ -3535,7 +3533,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -342.6, y: -42}
+  m_AnchoredPosition: {x: -431, y: -42}
   m_SizeDelta: {x: 173, y: 187}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1645813739
@@ -4018,6 +4016,7 @@ MonoBehaviour:
   gridCellSize: 1
   pieceSize: 0.48
   spawnCellScale: 0.48
+  trayTileHorizontalSpacing: 0.87
   minSpawnSpacingInCells: 1.8
   dragOffsetY: 2
   trayHeightInCells: 2

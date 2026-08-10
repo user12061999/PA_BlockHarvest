@@ -61,7 +61,7 @@ public static class BlockManagerSelfTest
             var blockObject = new GameObject("DeterministicBlock");
             blockObject.transform.SetParent(managerObject.transform, false);
             var block = blockObject.AddComponent<BlockPiece>();
-            block.SetData(BlockData.Single(TileType.Grass), board.CellSize * 0.5f, board, harvest, null, 0f);
+            block.SetData(BlockData.Single(TileType.Grass), board.CellSize * 0.5f, 1f, board, harvest, null, 0f);
             block.OnPointerDown(new PointerEventData(EventSystem.current));
             Check(Mathf.Approximately(blockObject.transform.localScale.x, board.CellVisualSize / (board.CellSize * 0.5f * 0.92f)), "Picked block should scale up to board cell visual size.");
             var origin = new Vector2Int(3, 3);

@@ -67,7 +67,13 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private Sprite babyBoarSprite;
     [SerializeField] private Sprite bearSprite;
     [SerializeField] private Sprite pigSprite;
+    [Header("Yield Feedback")]
     [SerializeField] private GameObject yieldEffectPrefab;
+    [SerializeField] private GameObject yieldPopupPrefab;
+    [Min(1f)]
+    [SerializeField] private float resourceGainScaleMultiplier = 1.18f;
+    [Min(0.01f)]
+    [SerializeField] private float resourceGainScaleSeconds = 0.22f;
     [SerializeField] private GameObject clearResourceEffectPrefab;
     [SerializeField] private GameObject dirt3x3EffectPrefab;
     [SerializeField] private GameObject waterSplashEffectPrefab;
@@ -445,6 +451,10 @@ public sealed class BoardManager : MonoBehaviour
         }
 
         var isValid = CanPlace(origin, blockData);
+        if (!isValid)
+        {
+            return false;
+        }
 
         for (var i = 0; i < blockData.positions.Count; i++)
         {
@@ -1384,8 +1394,8 @@ public sealed class BoardManager : MonoBehaviour
         var view = GetTileView(cell.coordinate);
         if (view != null)
         {
-            view.PlayResourceScaleIn();
-            view.PlayYieldPopup(increaseAmount);
+            view.PlayResourceScaleIn(resourceGainScaleSeconds, resourceGainScaleMultiplier);
+            view.PlayYieldPopup(increaseAmount, yieldPopupPrefab);
         }
     }
 
