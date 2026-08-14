@@ -19,7 +19,16 @@ public sealed class HarvestManager : MonoBehaviour
     {
         public ResourceGoalKind kind;
         public GameObject prefab;
-        [NonSerialized] public ResourceGoalView view;
+    }
+
+    private sealed class RuntimeResourceGoal
+    {
+        public TileType resourceType;
+        public ResourceGoalKind kind;
+        public int amount;
+        public int remainingAmount;
+        public GameObject prefab;
+        public ResourceGoalView view;
     }
 
     private struct TruckPickupStop
@@ -29,10 +38,13 @@ public sealed class HarvestManager : MonoBehaviour
         public float progress;
     }
 
-    [SerializeField] private int wheatGoal = 3;
-    [SerializeField] private int meatGoal = 12;
-    [SerializeField] private int flowerGoal = 8;
-    [SerializeField] private int fishGoal = 2;
+    [SerializeField] private List<LevelConfig.ResourceGoal> defaultResourceGoals = new List<LevelConfig.ResourceGoal>
+    {
+        new LevelConfig.ResourceGoal { resourceType = TileType.Wheat, amount = 3 },
+        new LevelConfig.ResourceGoal { resourceType = TileType.Boar, amount = 12 },
+        new LevelConfig.ResourceGoal { resourceType = TileType.Flower, amount = 8 },
+        new LevelConfig.ResourceGoal { resourceType = TileType.Fish, amount = 2 }
+    };
     [SerializeField] private int maxPlacements = 12;
     [SerializeField] private int extraPlacementsOnFullBoard = 3;
     [SerializeField] private LevelConfig levelConfig;
@@ -50,6 +62,7 @@ public sealed class HarvestManager : MonoBehaviour
     [SerializeField] private GameObject basketPickupEffectPrefab;
     [SerializeField] private float resourceFlySeconds = 0.35f;
     [SerializeField] private float resourceFlyScale = 1.5f;
+    [SerializeField] private AudioClip fullBoardBonusSound;
     private const float WinCardDelayAfterTruckStart = 3f;
 
     private PlayableUI playableUI;
@@ -65,22 +78,34 @@ public sealed class HarvestManager : MonoBehaviour
     private bool levelEnding;
     private bool boardHarvestInProgress;
     private int pendingHarvestAnimations;
+    private int pendingFullBoardBonusPlacements;
+    private bool fullBoardBonusInProgress;
+    private bool fullBoardBonusDelayInProgress;
+    private Coroutine fullBoardBonusDelayRoutine;
+    private int pendingWheatFlyValue;
+    private int pendingMeatFlyValue;
+    private int pendingFlowerFlyValue;
+    private int pendingFishFlyValue;
     private int pendingAnimalActions;
     private bool placementResolveInProgress;
     private bool levelCompleted;
     private bool winCardDelayScheduled;
     private Coroutine winCardDelayRoutine;
+    private readonly List<RuntimeResourceGoal> activeResourceGoals = new List<RuntimeResourceGoal>();
 
-    public int WheatGoal => wheatGoal;
-    public int FishGoal => fishGoal;
+    public int WheatGoal => GetTotalGoal(ResourceGoalKind.Wheat);
+    public int FishGoal => GetTotalGoal(ResourceGoalKind.Fish);
     public int Wheat => wheat;
     public int Meat => meat;
     public int Flower => flower;
     public int Fish => fish;
     public int RemainingPlacements => remainingPlacements;
     public LevelConfig Config => levelConfig;
-    public bool IsGoalComplete => wheat >= wheatGoal && meat >= meatGoal && flower >= flowerGoal && fish >= fishGoal;
-    public bool IsLevelOver => pendingAnimalActions == 0 && (levelEnding || IsGoalComplete || remainingPlacements == 0);
+    public bool IsGoalComplete => AreResourceGoalsComplete(false);
+    public bool IsLevelOver => pendingAnimalActions == 0
+        && (levelEnding
+            || IsGoalComplete
+            || (remainingPlacements == 0 && pendingFullBoardBonusPlacements <= 0 && !fullBoardBonusInProgress));
 
     private void Awake()
     {
@@ -90,6 +115,7 @@ public sealed class HarvestManager : MonoBehaviour
 
     public void ResetObjectives()
     {
+        ClearResourceGoals();
         ApplyLevelConfig();
         wheat = 0;
         meat = 0;
@@ -100,6 +126,19 @@ public sealed class HarvestManager : MonoBehaviour
         levelEnding = false;
         boardHarvestInProgress = false;
         pendingHarvestAnimations = 0;
+        pendingFullBoardBonusPlacements = 0;
+        fullBoardBonusInProgress = false;
+        fullBoardBonusDelayInProgress = false;
+        if (fullBoardBonusDelayRoutine != null)
+        {
+            StopCoroutine(fullBoardBonusDelayRoutine);
+            fullBoardBonusDelayRoutine = null;
+        }
+
+        pendingWheatFlyValue = 0;
+        pendingMeatFlyValue = 0;
+        pendingFlowerFlyValue = 0;
+        pendingFishFlyValue = 0;
         pendingAnimalActions = 0;
         placementResolveInProgress = false;
         levelCompleted = false;
@@ -111,7 +150,6 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         currentBoard = null;
-        ClearResourceGoals();
         SpawnResourceGoals();
         UpdateUI();
     }
@@ -169,7 +207,21 @@ public sealed class HarvestManager : MonoBehaviour
 
         if (boardIsFull && !visibleGoalComplete)
         {
-            remainingPlacements += Mathf.Max(0, extraPlacementsOnFullBoard);
+            pendingFullBoardBonusPlacements = Mathf.Max(
+                pendingFullBoardBonusPlacements,
+                Mathf.Max(0, extraPlacementsOnFullBoard));
+            if (pendingFullBoardBonusPlacements > 0 && !fullBoardBonusInProgress && !fullBoardBonusDelayInProgress)
+            {
+                if (Application.isPlaying)
+                {
+                    fullBoardBonusDelayInProgress = true;
+                    fullBoardBonusDelayRoutine = StartCoroutine(StartFullBoardBonusAfterDelay());
+                }
+                else
+                {
+                    TryStartFullBoardBonus();
+                }
+            }
         }
         else if (visibleGoalComplete)
         {
@@ -306,7 +358,7 @@ public sealed class HarvestManager : MonoBehaviour
     private void CompleteBoardClear(BoardManager board)
     {
         boardHarvestInProgress = false;
-        if (levelEnding || IsGoalComplete)
+        if (pendingHarvestAnimations == 0 && (levelEnding || IsGoalComplete))
         {
             BeginCompletionSequence();
             return;
@@ -342,17 +394,19 @@ public sealed class HarvestManager : MonoBehaviour
         if (!Application.isPlaying)
         {
             AddHarvest(resourceType, value);
+            ConsumeResourceGoal(resourceType, value);
             UpdateUI();
             return;
         }
 
         pendingHarvestAnimations++;
-        StartCoroutine(FlyHarvestResource(board, resourceType, value, worldPosition));
+        var goal = GetResourceGoalView(resourceType);
+        AddPendingFlyValue(resourceType, value);
+        StartCoroutine(FlyHarvestResource(board, resourceType, value, worldPosition, goal));
     }
 
-    private IEnumerator FlyHarvestResource(BoardManager board, TileType resourceType, int value, Vector3 from)
+    private IEnumerator FlyHarvestResource(BoardManager board, TileType resourceType, int value, Vector3 from, ResourceGoalView goal)
     {
-        var goal = GetResourceGoalView(resourceType);
         var to = goal != null ? goal.TargetWorldPosition : from;
         var sprite = board != null ? board.GetTileSprite(resourceType) : (goal != null ? goal.ResourceSprite : null);
 
@@ -374,6 +428,8 @@ public sealed class HarvestManager : MonoBehaviour
         Destroy(marker);
 
         AddHarvest(resourceType, value);
+        ConsumeResourceGoal(resourceType, value);
+        RemovePendingFlyValue(resourceType, value);
         pendingHarvestAnimations = Mathf.Max(0, pendingHarvestAnimations - 1);
         if (pendingHarvestAnimations == 0)
         {
@@ -386,16 +442,55 @@ public sealed class HarvestManager : MonoBehaviour
     private ResourceGoalView GetResourceGoalView(TileType resourceType)
     {
         var kind = GetGoalKind(resourceType);
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        var pendingValue = GetPendingFlyValue(kind);
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            var slot = resourceGoalPrefabs[i];
-            if (slot != null && slot.kind == kind)
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.kind != kind || goal.view == null)
             {
-                return slot.view;
+                continue;
+            }
+
+            if (pendingValue >= goal.remainingAmount)
+            {
+                pendingValue -= goal.remainingAmount;
+                continue;
+            }
+
+            if (goal.remainingAmount > 0)
+            {
+                return goal.view;
+            }
+        }
+
+        for (var i = 0; i < activeResourceGoals.Count; i++)
+        {
+            var goal = activeResourceGoals[i];
+            if (goal != null && goal.kind == kind && goal.view != null)
+            {
+                return goal.view;
             }
         }
 
         return null;
+    }
+
+    private void ConsumeResourceGoal(TileType resourceType, int value)
+    {
+        var kind = GetGoalKind(resourceType);
+        var remainingValue = Mathf.Max(0, value);
+        for (var i = 0; i < activeResourceGoals.Count && remainingValue > 0; i++)
+        {
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.kind != kind || goal.remainingAmount <= 0)
+            {
+                continue;
+            }
+
+            var consumed = Mathf.Min(goal.remainingAmount, remainingValue);
+            goal.remainingAmount -= consumed;
+            remainingValue -= consumed;
+        }
     }
 
     private ResourceGoalKind GetGoalKind(TileType resourceType)
@@ -406,6 +501,47 @@ public sealed class HarvestManager : MonoBehaviour
             case TileType.Flower: return ResourceGoalKind.Flower;
             case TileType.Fish: return ResourceGoalKind.Fish;
             default: return ResourceGoalKind.Meat;
+        }
+    }
+
+    private void AddPendingFlyValue(TileType resourceType, int value)
+    {
+        AddPendingFlyValue(GetGoalKind(resourceType), value);
+    }
+
+    private void RemovePendingFlyValue(TileType resourceType, int value)
+    {
+        AddPendingFlyValue(GetGoalKind(resourceType), -value);
+    }
+
+    private void AddPendingFlyValue(ResourceGoalKind kind, int value)
+    {
+        switch (kind)
+        {
+            case ResourceGoalKind.Wheat:
+                pendingWheatFlyValue = Mathf.Max(0, pendingWheatFlyValue + value);
+                break;
+            case ResourceGoalKind.Meat:
+                pendingMeatFlyValue = Mathf.Max(0, pendingMeatFlyValue + value);
+                break;
+            case ResourceGoalKind.Flower:
+                pendingFlowerFlyValue = Mathf.Max(0, pendingFlowerFlyValue + value);
+                break;
+            case ResourceGoalKind.Fish:
+                pendingFishFlyValue = Mathf.Max(0, pendingFishFlyValue + value);
+                break;
+        }
+    }
+
+    private int GetPendingFlyValue(ResourceGoalKind kind)
+    {
+        switch (kind)
+        {
+            case ResourceGoalKind.Wheat: return pendingWheatFlyValue;
+            case ResourceGoalKind.Meat: return pendingMeatFlyValue;
+            case ResourceGoalKind.Flower: return pendingFlowerFlyValue;
+            case ResourceGoalKind.Fish: return pendingFishFlyValue;
+            default: return 0;
         }
     }
 
@@ -504,16 +640,7 @@ public sealed class HarvestManager : MonoBehaviour
 
         if (playableUI != null)
         {
-            playableUI.SetHarvestCounts(
-                GetCurrent(ResourceGoalKind.Wheat),
-                wheatGoal,
-                GetCurrent(ResourceGoalKind.Meat),
-                meatGoal,
-                GetCurrent(ResourceGoalKind.Flower),
-                flowerGoal,
-                GetCurrent(ResourceGoalKind.Fish),
-                fishGoal,
-                remainingPlacements);
+            playableUI.SetHarvestCounts(BuildGoalSummary(), remainingPlacements);
         }
 
         if (!levelEnding && !boardHarvestInProgress && pendingHarvestAnimations == 0 && pendingAnimalActions == 0 && currentBoard != null && HasBoardResources(currentBoard) && IsVisibleGoalComplete())
@@ -527,10 +654,83 @@ public sealed class HarvestManager : MonoBehaviour
         {
             BeginCompletionSequence();
         }
-        else if (remainingPlacements == 0 && !boardHarvestInProgress && pendingHarvestAnimations == 0 && pendingAnimalActions == 0)
+        else if (TryStartFullBoardBonus())
+        {
+            return;
+        }
+        else if (remainingPlacements == 0
+            && pendingFullBoardBonusPlacements <= 0
+            && !fullBoardBonusInProgress
+            && !boardHarvestInProgress
+            && pendingHarvestAnimations == 0
+            && pendingAnimalActions == 0)
         {
             FailLevel();
         }
+    }
+
+    private bool TryStartFullBoardBonus()
+    {
+        if (pendingFullBoardBonusPlacements <= 0
+            || fullBoardBonusInProgress
+            || fullBoardBonusDelayInProgress
+            || levelEnding
+            || pendingAnimalActions > 0)
+        {
+            return false;
+        }
+
+        var bonusPlacements = pendingFullBoardBonusPlacements;
+        pendingFullBoardBonusPlacements = 0;
+        fullBoardBonusInProgress = true;
+
+        if (playableUI == null)
+        {
+            playableUI = FindObjectOfType<PlayableUI>();
+        }
+
+        if (playableUI != null && Application.isPlaying)
+        {
+            PlayFullBoardBonusSound();
+            playableUI.PlayFullBoardMoveBonus(bonusPlacements, () => CompleteFullBoardBonus(bonusPlacements));
+        }
+        else
+        {
+            CompleteFullBoardBonus(bonusPlacements);
+        }
+
+        return true;
+    }
+
+    private void PlayFullBoardBonusSound()
+    {
+        if (AudioManager.ins == null)
+        {
+            return;
+        }
+
+        if (fullBoardBonusSound != null)
+        {
+            AudioManager.ins.PlaySound(fullBoardBonusSound);
+            return;
+        }
+
+        AudioManager.ins.PlayResourceGain();
+    }
+
+    private IEnumerator StartFullBoardBonusAfterDelay()
+    {
+        yield return new WaitForSeconds(1f);
+        fullBoardBonusDelayInProgress = false;
+        fullBoardBonusDelayRoutine = null;
+        TryStartFullBoardBonus();
+    }
+
+    private void CompleteFullBoardBonus(int bonusPlacements)
+    {
+        remainingPlacements += Mathf.Max(0, bonusPlacements);
+        fullBoardBonusInProgress = false;
+        UpdateUI();
     }
 
     private void SpawnResourceGoals()
@@ -539,24 +739,24 @@ public sealed class HarvestManager : MonoBehaviour
         var activeCount = CountActiveResourceGoals();
         var spawnedIndex = 0;
 
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            var slot = resourceGoalPrefabs[i];
-            if (!IsActiveResourceGoal(slot))
+            var goal = activeResourceGoals[i];
+            if (!IsActiveResourceGoal(goal))
             {
                 continue;
             }
 
-            var goalObject = Instantiate(slot.prefab, parent);
+            var goalObject = Instantiate(goal.prefab, parent);
             goalObject.transform.localPosition = Vector3.right * ((spawnedIndex - (activeCount - 1) * 0.5f) * resourceGoalSpacing);
             goalObject.transform.localRotation = Quaternion.identity;
-            slot.view = goalObject.GetComponent<ResourceGoalView>();
-            if (slot.view == null)
+            goal.view = goalObject.GetComponent<ResourceGoalView>();
+            if (goal.view == null)
             {
-                slot.view = goalObject.AddComponent<ResourceGoalView>();
+                goal.view = goalObject.AddComponent<ResourceGoalView>();
             }
 
-            slot.view.Initialize();
+            goal.view.Initialize();
             spawnedIndex++;
         }
     }
@@ -564,9 +764,9 @@ public sealed class HarvestManager : MonoBehaviour
     private int CountActiveResourceGoals()
     {
         var count = 0;
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            if (IsActiveResourceGoal(resourceGoalPrefabs[i]))
+            if (IsActiveResourceGoal(activeResourceGoals[i]))
             {
                 count++;
             }
@@ -575,23 +775,23 @@ public sealed class HarvestManager : MonoBehaviour
         return count;
     }
 
-    private bool IsActiveResourceGoal(ResourceGoalSlot slot)
+    private bool IsActiveResourceGoal(RuntimeResourceGoal goal)
     {
-        return slot != null && slot.prefab != null && GetGoal(slot.kind) > 0;
+        return goal != null && goal.prefab != null && goal.amount > 0;
     }
 
     private void ClearResourceGoals()
     {
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            var slot = resourceGoalPrefabs[i];
-            if (slot == null || slot.view == null)
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.view == null)
             {
                 continue;
             }
 
-            DestroyObject(slot.view.gameObject);
-            slot.view = null;
+            DestroyObject(goal.view.gameObject);
+            goal.view = null;
         }
 
         if (spawnedTruck != null)
@@ -603,27 +803,130 @@ public sealed class HarvestManager : MonoBehaviour
 
     private void UpdateResourceGoals()
     {
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            var slot = resourceGoalPrefabs[i];
-            if (slot == null || slot.view == null)
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.view == null)
             {
                 continue;
             }
 
-            slot.view.SetValue(GetCurrent(slot.kind), GetGoal(slot.kind));
+            goal.view.SetValue(goal.amount - goal.remainingAmount, goal.amount);
         }
     }
 
-    private int GetCurrent(ResourceGoalKind kind)
+    private bool AreResourceGoalsComplete(bool includeBoard)
+    {
+        var hasGoals = false;
+        var wheatAvailable = includeBoard ? CountBoardResource(ResourceGoalKind.Wheat) : 0;
+        var meatAvailable = includeBoard ? CountBoardResource(ResourceGoalKind.Meat) : 0;
+        var flowerAvailable = includeBoard ? CountBoardResource(ResourceGoalKind.Flower) : 0;
+        var fishAvailable = includeBoard ? CountBoardResource(ResourceGoalKind.Fish) : 0;
+
+        for (var i = 0; i < activeResourceGoals.Count; i++)
+        {
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.amount <= 0)
+            {
+                continue;
+            }
+
+            hasGoals = true;
+            var remainingAmount = goal.remainingAmount;
+            if (includeBoard)
+            {
+                var consumed = Mathf.Min(remainingAmount, GetAvailableResource(goal.kind, wheatAvailable, meatAvailable, flowerAvailable, fishAvailable));
+                remainingAmount -= consumed;
+                SubtractAvailableResource(goal.kind, consumed, ref wheatAvailable, ref meatAvailable, ref flowerAvailable, ref fishAvailable);
+            }
+
+            if (remainingAmount > 0)
+            {
+                return false;
+            }
+        }
+
+        return hasGoals;
+    }
+
+    private int GetAvailableResource(ResourceGoalKind kind, int wheatAvailable, int meatAvailable, int flowerAvailable, int fishAvailable)
     {
         switch (kind)
         {
-            case ResourceGoalKind.Wheat: return wheat + CountBoardResource(ResourceGoalKind.Wheat);
-            case ResourceGoalKind.Meat: return meat + CountBoardResource(ResourceGoalKind.Meat);
-            case ResourceGoalKind.Flower: return flower + CountBoardResource(ResourceGoalKind.Flower);
-            case ResourceGoalKind.Fish: return fish + CountBoardResource(ResourceGoalKind.Fish);
+            case ResourceGoalKind.Wheat: return wheatAvailable;
+            case ResourceGoalKind.Meat: return meatAvailable;
+            case ResourceGoalKind.Flower: return flowerAvailable;
+            case ResourceGoalKind.Fish: return fishAvailable;
             default: return 0;
+        }
+    }
+
+    private void SubtractAvailableResource(
+        ResourceGoalKind kind,
+        int amount,
+        ref int wheatAvailable,
+        ref int meatAvailable,
+        ref int flowerAvailable,
+        ref int fishAvailable)
+    {
+        switch (kind)
+        {
+            case ResourceGoalKind.Wheat:
+                wheatAvailable -= amount;
+                break;
+            case ResourceGoalKind.Meat:
+                meatAvailable -= amount;
+                break;
+            case ResourceGoalKind.Flower:
+                flowerAvailable -= amount;
+                break;
+            case ResourceGoalKind.Fish:
+                fishAvailable -= amount;
+                break;
+        }
+    }
+
+    private int GetTotalGoal(ResourceGoalKind kind)
+    {
+        var total = 0;
+        for (var i = 0; i < activeResourceGoals.Count; i++)
+        {
+            var goal = activeResourceGoals[i];
+            if (goal != null && goal.kind == kind)
+            {
+                total += goal.amount;
+            }
+        }
+
+        return total;
+    }
+
+    private List<string> BuildGoalSummary()
+    {
+        var summary = new List<string>(activeResourceGoals.Count);
+        for (var i = 0; i < activeResourceGoals.Count; i++)
+        {
+            var goal = activeResourceGoals[i];
+            if (goal == null || goal.amount <= 0)
+            {
+                continue;
+            }
+
+            summary.Add(GetGoalName(goal.kind) + " " + goal.remainingAmount);
+        }
+
+        return summary;
+    }
+
+    private string GetGoalName(ResourceGoalKind kind)
+    {
+        switch (kind)
+        {
+            case ResourceGoalKind.Wheat: return "Wheat";
+            case ResourceGoalKind.Meat: return "Meat";
+            case ResourceGoalKind.Flower: return "Flower";
+            case ResourceGoalKind.Fish: return "Fish";
+            default: return "Goal";
         }
     }
 
@@ -652,18 +955,6 @@ public sealed class HarvestManager : MonoBehaviour
         return total;
     }
 
-    private int GetGoal(ResourceGoalKind kind)
-    {
-        switch (kind)
-        {
-            case ResourceGoalKind.Wheat: return wheatGoal;
-            case ResourceGoalKind.Meat: return meatGoal;
-            case ResourceGoalKind.Flower: return flowerGoal;
-            case ResourceGoalKind.Fish: return fishGoal;
-            default: return 0;
-        }
-    }
-
     private void BeginCompletionSequence()
     {
         if (completionSequenceStarted)
@@ -689,10 +980,7 @@ public sealed class HarvestManager : MonoBehaviour
 
     private bool IsVisibleGoalComplete()
     {
-        return GetCurrent(ResourceGoalKind.Wheat) >= wheatGoal
-            && GetCurrent(ResourceGoalKind.Meat) >= meatGoal
-            && GetCurrent(ResourceGoalKind.Flower) >= flowerGoal
-            && GetCurrent(ResourceGoalKind.Fish) >= fishGoal;
+        return AreResourceGoalsComplete(true);
     }
 
     private bool HasBoardResources(BoardManager board)
@@ -802,7 +1090,7 @@ public sealed class HarvestManager : MonoBehaviour
 
     private List<TruckPickupStop> BuildTruckPickupStops(Vector3 start, Vector3 end)
     {
-        var stops = new List<TruckPickupStop>(resourceGoalPrefabs.Count);
+        var stops = new List<TruckPickupStop>(activeResourceGoals.Count);
         var route = end - start;
         var routeSqrMagnitude = route.sqrMagnitude;
         if (routeSqrMagnitude <= 0.001f)
@@ -810,9 +1098,9 @@ public sealed class HarvestManager : MonoBehaviour
             return stops;
         }
 
-        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        for (var i = 0; i < activeResourceGoals.Count; i++)
         {
-            var view = resourceGoalPrefabs[i] != null ? resourceGoalPrefabs[i].view : null;
+            var view = activeResourceGoals[i] != null ? activeResourceGoals[i].view : null;
             if (view == null)
             {
                 continue;
@@ -955,15 +1243,53 @@ public sealed class HarvestManager : MonoBehaviour
 
     private void ApplyLevelConfig()
     {
-        if (levelConfig == null)
+        if (levelConfig != null)
         {
-            return;
+            maxPlacements = levelConfig.maxPlacements;
         }
 
-        wheatGoal = levelConfig.wheatGoal;
-        meatGoal = levelConfig.meatGoal;
-        flowerGoal = levelConfig.flowerGoal;
-        fishGoal = levelConfig.fishGoal;
-        maxPlacements = levelConfig.maxPlacements;
+        RebuildActiveResourceGoals();
+    }
+
+    private void RebuildActiveResourceGoals()
+    {
+        activeResourceGoals.Clear();
+
+        var configuredGoals = levelConfig != null && levelConfig.resourceGoals != null && levelConfig.resourceGoals.Count > 0
+            ? levelConfig.resourceGoals
+            : defaultResourceGoals;
+
+        for (var i = 0; i < configuredGoals.Count; i++)
+        {
+            var configuredGoal = configuredGoals[i];
+            if (configuredGoal == null || configuredGoal.resourceType == TileType.Empty || configuredGoal.amount <= 0)
+            {
+                continue;
+            }
+
+            var kind = GetGoalKind(configuredGoal.resourceType);
+            activeResourceGoals.Add(new RuntimeResourceGoal
+            {
+                resourceType = configuredGoal.resourceType,
+                kind = kind,
+                amount = configuredGoal.amount,
+                remainingAmount = configuredGoal.amount,
+                prefab = GetResourceGoalPrefab(kind)
+            });
+        }
+    }
+
+    private GameObject GetResourceGoalPrefab(ResourceGoalKind kind)
+    {
+        for (var i = 0; i < resourceGoalPrefabs.Count; i++)
+        {
+            var slot = resourceGoalPrefabs[i];
+            if (slot != null && slot.kind == kind)
+            {
+                return slot.prefab;
+            }
+        }
+
+        return null;
     }
 }

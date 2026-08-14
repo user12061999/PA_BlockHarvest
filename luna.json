@@ -76,12 +76,12 @@
                 "Stubs/SupersonicWisdom/"
             ],
             "msbuildMac64": "/Library/Frameworks/Mono.framework/Versions/Current/bin/msbuild",
-            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\18\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "msbuildWin64": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
             "externalSources": [],
             "externalJSLibraries": [],
             "scriptingDefines": [],
-            "msbuildVersion": "17.3",
-            "monoVersion": "6.0.9",
+            "msbuildVersion": "17.14",
+            "monoVersion": "6.0.5",
             "dotnetVersion": ""
         },
         "assets": {
@@ -1727,10 +1727,6 @@
             },
             {
                 "name": "UnityEngine.Profiling.Profiler",
-                "excluded": true
-            },
-            {
-                "name": "UnityEngine.PropertyHelper",
                 "excluded": true
             },
             {
@@ -8399,6 +8395,10 @@
             },
             {
                 "name": "DG.Tweening.Plugins.Core.ITPlugin$4",
+                "excluded": false
+            },
+            {
+                "name": "HarvestManager.RuntimeResourceGoal",
                 "excluded": false
             }
         ],
@@ -26721,11 +26721,11 @@
                     },
                     {
                         "name": "alpha#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "alpha#set",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "interactable#get",
@@ -26737,7 +26737,7 @@
                     },
                     {
                         "name": "blocksRaycasts#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "blocksRaycasts#set",
@@ -26745,7 +26745,7 @@
                     },
                     {
                         "name": "ignoreParentGroups#get",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ignoreParentGroups#set",
@@ -26753,27 +26753,27 @@
                     },
                     {
                         "name": "init",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "Awake",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnEnable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDisable",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "AddCanvasGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RemoveCanvasGroup",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnDidApplyAnimationProperties",
@@ -30762,15 +30762,7 @@
                         "excluded": false
                     },
                     {
-                        "name": "GetCurrent",
-                        "excluded": false
-                    },
-                    {
                         "name": "CountBoardResource",
-                        "excluded": false
-                    },
-                    {
-                        "name": "GetGoal",
                         "excluded": false
                     },
                     {
@@ -30860,6 +30852,74 @@
                     {
                         "name": "HideTruckAtExit",
                         "excluded": false
+                    },
+                    {
+                        "name": "ConsumeResourceGoal",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddPendingFlyValue$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddPendingFlyValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RemovePendingFlyValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetPendingFlyValue",
+                        "excluded": false
+                    },
+                    {
+                        "name": "TryStartFullBoardBonus",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayFullBoardBonusSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "StartFullBoardBonusAfterDelay",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CompleteFullBoardBonus",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AreResourceGoalsComplete",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetAvailableResource",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SubtractAvailableResource",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTotalGoal",
+                        "excluded": true
+                    },
+                    {
+                        "name": "BuildGoalSummary",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetGoalName",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RebuildActiveResourceGoals",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetResourceGoalPrefab",
+                        "excluded": false
                     }
                 ]
             },
@@ -30924,6 +30984,34 @@
                     {
                         "name": "HideLegacyTutorialPanel",
                         "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetHarvestCounts$2",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayFullBoardMoveBonus",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureFullBoardBonusViews",
+                        "excluded": false
+                    },
+                    {
+                        "name": "CreateFullBoardBonusPanel",
+                        "excluded": true
+                    },
+                    {
+                        "name": "CreateFullBoardBonusClock",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlayFullBoardMoveBonusRoutine",
+                        "excluded": false
                     }
                 ]
             },
@@ -30949,6 +31037,14 @@
                     },
                     {
                         "name": "Pickup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "init",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetFill",
                         "excluded": false
                     }
                 ]
@@ -38432,6 +38528,34 @@
                     {
                         "name": "SetDirty",
                         "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "LevelConfig.ResourceGoal",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "init",
+                        "excluded": false
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.PropertyHelper",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "SetColor",
+                        "excluded": true
+                    },
+                    {
+                        "name": "SetStruct",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetClass",
+                        "excluded": true
                     }
                 ]
             }

@@ -285,10 +285,12 @@ public static class HarvestManagerSelfTest
         var context = CreateContext(12);
         try
         {
-            context.config.wheatGoal = 1;
-            context.config.meatGoal = 0;
-            context.config.flowerGoal = 0;
-            context.config.fishGoal = 0;
+            context.config.resourceGoals.Clear();
+            context.config.resourceGoals.Add(new LevelConfig.ResourceGoal
+            {
+                resourceType = TileType.Wheat,
+                amount = 1
+            });
             context.harvest.Configure(context.config);
             context.board.SetPlayableCoordinates(new List<Vector2Int> { Vector2Int.zero });
             context.board.PlaceTile(Vector2Int.zero, TileType.Dirt, TileType.Wheat);

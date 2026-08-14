@@ -6,16 +6,20 @@ using UnityEngine;
 public sealed class LevelConfig : ScriptableObject
 {
     [Serializable]
+    public sealed class ResourceGoal
+    {
+        public TileType resourceType = TileType.Wheat;
+        [Min(1)] public int amount = 1;
+    }
+
+    [Serializable]
     public sealed class BlockSpawnTurn
     {
         public List<BlockData> blocks = new List<BlockData>();
     }
 
     public List<Vector2Int> playableCoordinates = new List<Vector2Int>();
-    public int wheatGoal = 15;
-    public int meatGoal = 12;
-    public int flowerGoal = 8;
-    public int fishGoal = 10;
+    public List<ResourceGoal> resourceGoals = new List<ResourceGoal>();
     public int maxPlacements = 12;
     [Header("Water Placement Animation")]
     public float waterBounceHeight = 0.18f;

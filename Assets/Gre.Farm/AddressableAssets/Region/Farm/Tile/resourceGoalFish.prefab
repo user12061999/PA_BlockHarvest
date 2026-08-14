@@ -382,6 +382,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   basketRenderer: {fileID: 6468853082477207795}
   resourceRenderer: {fileID: 6246337023153736847}
+  fillRenderer: {fileID: 0}
+  fillImage: {fileID: 0}
   completeRenderer: {fileID: 2079091494764231654}
   valueLabel: {fileID: 940918406577943413}
 --- !u!1 &4061003243886242485
@@ -536,10 +538,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 32/32
+  m_text: 17
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
-  m_sharedMaterial: {fileID: 4131589085072178670, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
+  m_sharedMaterial: {fileID: 7614323575615406591, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -563,7 +565,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.3
+  m_fontSize: 0.35
   m_fontSizeBase: 0.1
   m_fontWeight: 400
   m_enableAutoSizing: 1

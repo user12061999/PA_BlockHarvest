@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public sealed class PlayableUI : MonoBehaviour
@@ -8,9 +11,19 @@ public sealed class PlayableUI : MonoBehaviour
     [SerializeField] private Text objectiveText;
     [SerializeField] private Text timerText;
     [SerializeField] private TextMeshProUGUI remainingMovesLabel;
+    [Header("Full Board Bonus")]
+    [SerializeField] private RectTransform fullBoardBonusPanel;
+    [SerializeField] private RectTransform fullBoardBonusClock;
+    [SerializeField] private Image fullBoardBonusClockImage;
+    [SerializeField] private Sprite fullBoardBonusClockSprite;
+    [SerializeField] private float fullBoardBonusVisibleSeconds = 2f;
+    [SerializeField] private float fullBoardBonusScaleSeconds = 0.2f;
+    [SerializeField] private float fullBoardBonusMoveSeconds = 0.45f;
     [SerializeField] private GameObject ctaPanel;
 
     private BlockManager blockManager;
+    private CanvasGroup fullBoardBonusCanvasGroup;
+    private Coroutine fullBoardBonusRoutine;
 
     public bool IsTutorialVisible => false;
 
@@ -25,6 +38,17 @@ public sealed class PlayableUI : MonoBehaviour
         {
             var panel = transform.Find("CtaPanel");
             if (panel != null) ctaPanel = panel.gameObject;
+        }
+
+        if (fullBoardBonusPanel == null)
+        {
+            var panel = transform.Find("FullBoardBonusPanel");
+            fullBoardBonusPanel = panel != null ? panel.GetComponent<RectTransform>() : null;
+        }
+
+        if (fullBoardBonusPanel != null)
+        {
+            fullBoardBonusPanel.gameObject.SetActive(false);
         }
     }
 
@@ -54,6 +78,49 @@ public sealed class PlayableUI : MonoBehaviour
                 + "  Flower " + flower + "/" + flowerGoal
                 + "  Fish " + fish + "/" + fishGoal
                 + "  Moves " + remainingPlacements;
+        }
+
+        SetRemainingMoves(remainingPlacements);
+    }
+
+    public void PlayFullBoardMoveBonus(int amount, Action onComplete)
+    {
+        if (!Application.isPlaying || amount <= 0)
+        {
+            if (onComplete != null)
+            {
+                onComplete();
+            }
+
+            return;
+        }
+
+        EnsureFullBoardBonusViews();
+        if (fullBoardBonusPanel == null || fullBoardBonusClock == null || remainingMovesLabel == null)
+        {
+            if (onComplete != null)
+            {
+                onComplete();
+            }
+
+            return;
+        }
+
+        if (fullBoardBonusRoutine != null)
+        {
+            StopCoroutine(fullBoardBonusRoutine);
+        }
+
+        fullBoardBonusRoutine = StartCoroutine(PlayFullBoardMoveBonusRoutine(onComplete));
+    }
+
+    public void SetHarvestCounts(List<string> resourceGoals, int remainingPlacements)
+    {
+        if (objectiveText != null)
+        {
+            objectiveText.text = resourceGoals != null && resourceGoals.Count > 0
+                ? string.Join("  ", resourceGoals) + "  Moves " + remainingPlacements
+                : "Moves " + remainingPlacements;
         }
 
         SetRemainingMoves(remainingPlacements);
@@ -91,6 +158,157 @@ public sealed class PlayableUI : MonoBehaviour
     {
         var child = transform.Find(childName);
         return child != null ? child.GetComponent<Text>() : null;
+    }
+
+    private void EnsureFullBoardBonusViews()
+    {
+        if (fullBoardBonusPanel == null)
+        {
+            var existingPanel = transform.Find("FullBoardBonusPanel");
+            fullBoardBonusPanel = existingPanel != null ? existingPanel.GetComponent<RectTransform>() : null;
+        }
+
+        if (fullBoardBonusPanel == null)
+        {
+            fullBoardBonusPanel = CreateFullBoardBonusPanel();
+        }
+
+        if (fullBoardBonusCanvasGroup == null && fullBoardBonusPanel != null)
+        {
+            fullBoardBonusCanvasGroup = fullBoardBonusPanel.GetComponent<CanvasGroup>();
+            if (fullBoardBonusCanvasGroup == null)
+            {
+                fullBoardBonusCanvasGroup = fullBoardBonusPanel.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        if (fullBoardBonusClock == null && fullBoardBonusPanel != null)
+        {
+            var clock = fullBoardBonusPanel.Find("Clock");
+            fullBoardBonusClock = clock != null ? clock.GetComponent<RectTransform>() : null;
+            if (fullBoardBonusClock == null)
+            {
+                fullBoardBonusClock = CreateFullBoardBonusClock(fullBoardBonusPanel);
+            }
+        }
+
+        if (fullBoardBonusClockImage == null && fullBoardBonusClock != null)
+        {
+            fullBoardBonusClockImage = fullBoardBonusClock.GetComponent<Image>();
+        }
+
+        if (fullBoardBonusClockImage != null && fullBoardBonusClockSprite != null)
+        {
+            fullBoardBonusClockImage.sprite = fullBoardBonusClockSprite;
+            fullBoardBonusClockImage.color = Color.white;
+        }
+    }
+
+    private RectTransform CreateFullBoardBonusPanel()
+    {
+        var panelObject = new GameObject("FullBoardBonusPanel", typeof(RectTransform));
+        panelObject.transform.SetParent(transform, false);
+
+        var panel = panelObject.GetComponent<RectTransform>();
+        panel.anchorMin = new Vector2(0.5f, 0.5f);
+        panel.anchorMax = new Vector2(0.5f, 0.5f);
+        panel.pivot = new Vector2(0.5f, 0.5f);
+        panel.anchoredPosition = Vector2.zero;
+        panel.sizeDelta = new Vector2(260f, 120f);
+
+        var background = panelObject.AddComponent<Image>();
+        background.color = new Color(0f, 0f, 0f, 0.55f);
+
+        fullBoardBonusCanvasGroup = panelObject.AddComponent<CanvasGroup>();
+
+        fullBoardBonusClock = CreateFullBoardBonusClock(panel);
+        panelObject.SetActive(false);
+        return panel;
+    }
+
+    private RectTransform CreateFullBoardBonusClock(RectTransform parent)
+    {
+        var clockObject = new GameObject("Clock", typeof(RectTransform));
+        clockObject.transform.SetParent(parent, false);
+
+        var clock = clockObject.GetComponent<RectTransform>();
+        clock.anchorMin = new Vector2(0.5f, 0.5f);
+        clock.anchorMax = new Vector2(0.5f, 0.5f);
+        clock.pivot = new Vector2(0.5f, 0.5f);
+        clock.anchoredPosition = Vector2.zero;
+        clock.sizeDelta = new Vector2(72f, 72f);
+
+        fullBoardBonusClockImage = clockObject.AddComponent<Image>();
+        fullBoardBonusClockImage.sprite = fullBoardBonusClockSprite;
+        fullBoardBonusClockImage.color = Color.white;
+        fullBoardBonusClockImage.raycastTarget = false;
+        return clock;
+    }
+
+    private IEnumerator PlayFullBoardMoveBonusRoutine(Action onComplete)
+    {
+        var panelStartScale = fullBoardBonusPanel.localScale;
+        if (panelStartScale.sqrMagnitude <= 0.0001f)
+        {
+            panelStartScale = Vector3.one;
+        }
+
+        fullBoardBonusPanel.gameObject.SetActive(true);
+        fullBoardBonusPanel.SetAsLastSibling();
+        fullBoardBonusPanel.localScale = Vector3.zero;
+
+        if (fullBoardBonusCanvasGroup != null)
+        {
+            fullBoardBonusCanvasGroup.alpha = 1f;
+        }
+
+        var clockStartLocalPosition = fullBoardBonusClock.localPosition;
+        var clockStartScale = fullBoardBonusClock.localScale;
+        fullBoardBonusClock.localPosition = clockStartLocalPosition;
+        fullBoardBonusClock.localScale = clockStartScale;
+
+        var scaleSeconds = Mathf.Max(0.01f, fullBoardBonusScaleSeconds);
+        for (var elapsed = 0f; elapsed < scaleSeconds; elapsed += Time.deltaTime)
+        {
+            fullBoardBonusPanel.localScale = Vector3.Lerp(Vector3.zero, panelStartScale, Mathf.SmoothStep(0f, 1f, elapsed / scaleSeconds));
+            yield return null;
+        }
+
+        fullBoardBonusPanel.localScale = panelStartScale;
+        yield return new WaitForSeconds(Mathf.Max(0f, fullBoardBonusVisibleSeconds - scaleSeconds));
+
+        var from = fullBoardBonusClock.position;
+        var to = remainingMovesLabel.rectTransform.position;
+        var moveSeconds = Mathf.Max(0.01f, fullBoardBonusMoveSeconds);
+        for (var elapsed = 0f; elapsed < moveSeconds; elapsed += Time.deltaTime)
+        {
+            var t = Mathf.SmoothStep(0f, 1f, elapsed / moveSeconds);
+            fullBoardBonusClock.position = Vector3.Lerp(from, to, t);
+            if (fullBoardBonusCanvasGroup != null)
+            {
+                fullBoardBonusCanvasGroup.alpha = Mathf.Lerp(1f, 0.65f, t);
+            }
+
+            yield return null;
+        }
+
+        fullBoardBonusClock.position = to;
+
+        fullBoardBonusClock.localPosition = clockStartLocalPosition;
+        fullBoardBonusClock.localScale = clockStartScale;
+        fullBoardBonusPanel.localScale = panelStartScale;
+        if (fullBoardBonusCanvasGroup != null)
+        {
+            fullBoardBonusCanvasGroup.alpha = 0f;
+        }
+
+        fullBoardBonusPanel.gameObject.SetActive(false);
+        fullBoardBonusRoutine = null;
+
+        if (onComplete != null)
+        {
+            onComplete();
+        }
     }
 
     private void HideLegacyTutorialPanel()
