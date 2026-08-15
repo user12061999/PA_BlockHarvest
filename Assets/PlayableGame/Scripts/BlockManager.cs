@@ -13,6 +13,8 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private float spawnCellScale = 0.48f;
     [Min(0.01f)]
     [SerializeField] private float trayTileHorizontalSpacing = 0.92f;
+[Min(0.01f)]
+    [SerializeField] private float trayTileVerticalSpacing = 1f;
     [SerializeField] private float minSpawnSpacingInCells = 1.8f;
     [SerializeField] private float dragOffsetY = 0.6f;
     [SerializeField] private float trayHeightInCells = 2f;
@@ -173,7 +175,15 @@ public sealed class BlockManager : MonoBehaviour
         blockObject.transform.position = GetSpawnPosition(index);
 
         var blockPiece = blockObject.AddComponent<BlockPiece>();
-        blockPiece.SetData(blockData, pieceSize, trayTileHorizontalSpacing, boardManager, harvestManager, this, dragOffsetY);
+        blockPiece.SetData(
+            blockData,
+            pieceSize,
+            trayTileHorizontalSpacing,
+            trayTileVerticalSpacing,
+            boardManager,
+            harvestManager,
+            this,
+            dragOffsetY);
         activeBlocks.Add(blockPiece);
     }
 

@@ -36,6 +36,7 @@ public sealed class BoardManager : MonoBehaviour
         public TileType resourceType;
         public int resourceValue;
         public Vector3 worldPosition;
+        public float distance; // Khoảng cách tới góc Top-Right
     }
 
     [SerializeField] private bool createVisuals = true;
@@ -89,11 +90,16 @@ public sealed class BoardManager : MonoBehaviour
     [SerializeField] private float adjacentWaterBounceHeight = 0.18f;
     [SerializeField] private float adjacentWaterBounceSeconds = 0.24f;
     [SerializeField] private float connectedWaterBounceStepDelay = 0.04f;
-    [Header("Clear Animation")]
-    [SerializeField] private float clearTileSeconds = 0.08f;
-    [SerializeField] private float clearStepDelay = 0.03f;
+    [Header("Clear Grid & Glow Effects")]
+    [SerializeField] private float clearBounceHeight = 0.18f;   // Độ cao nảy lên
+    [SerializeField] private float clearBounceSeconds = 0.12f;  // Thời gian nảy lên
+    [SerializeField] private float clearTileSeconds = 0.10f;    // Thời gian thu nhỏ biến mất
+    [SerializeField] private float clearStepDelay = 0.035f;
     [SerializeField] private float clearCameraShakeSeconds = 0.5f;
     [SerializeField] private float clearCameraShakeMagnitude = 0.08f;
+    [SerializeField] private GameObject tileBreakEffectPrefab;
+    [SerializeField] private GameObject resourceGlowEffectPrefab;
+    [SerializeField] private float resourceGlowLifetime = 1.5f;
     [Header("Animal Frame Animations")]
     [SerializeField] private List<AnimalFrameSet> animalAnimations = new List<AnimalFrameSet>();
 
@@ -613,7 +619,6 @@ public sealed class BoardManager : MonoBehaviour
             {
                 onComplete();
             }
-
             return;
         }
 
@@ -624,10 +629,15 @@ public sealed class BoardManager : MonoBehaviour
             RefreshVisuals();
         }
 
+        // Lấy tọa độ góc trên cùng bên phải (Top-Right)
+        Vector2Int minCoord, maxCoord;
+        GetVisibleBounds(out minCoord, out maxCoord);
+        var topRight = new Vector2(maxCoord.x, maxCoord.y);
+
         var clearTiles = new List<ClearTile>();
-        for (var y = Height - 1; y >= 0; y--)
+        for (var y = 0; y < Height; y++)
         {
-            for (var x = Width - 1; x >= 0; x--)
+            for (var x = 0; x < Width; x++)
             {
                 var cell = cells[x, y];
                 if (IsInside(cell.coordinate) && (cell.tileType != TileType.Empty || cell.resourceType != TileType.Empty))
@@ -635,12 +645,16 @@ public sealed class BoardManager : MonoBehaviour
                     var view = GetTileView(cell.coordinate);
                     if (view != null)
                     {
+                        // Tính khoảng cách Euclidean đến góc Top-Right
+                        var dist = Vector2.Distance(new Vector2(x, y), topRight);
+
                         clearTiles.Add(new ClearTile
                         {
                             view = view,
                             resourceType = cell.resourceType,
                             resourceValue = cell.resourceValue,
-                            worldPosition = CoordinateToWorld(cell.coordinate)
+                            worldPosition = CoordinateToWorld(cell.coordinate),
+                            distance = dist
                         });
                     }
                 }
@@ -648,6 +662,9 @@ public sealed class BoardManager : MonoBehaviour
                 ClearCellState(cell);
             }
         }
+
+        // Sắp xếp các ô từ gần Top-Right nhất đến xa nhất -> tạo hiệu ứng sóng tròn lan tỏa
+        clearTiles.Sort((a, b) => a.distance.CompareTo(b.distance));
 
         if (clearTiles.Count > 0 && AudioManager.ins != null)
         {
@@ -1043,7 +1060,19 @@ public sealed class BoardManager : MonoBehaviour
 
     private void PlayDirt3x3Effect(Vector2Int center)
     {
-        if (!Application.isPlaying || dirt3x3EffectPrefab == null)
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        // --- PHÁT TIẾNG NÂNG CẤP ĐẤT 3X3 ---
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayDirt3x3();
+        }
+        // ----------------------------------
+
+        if (dirt3x3EffectPrefab == null)
         {
             return;
         }
@@ -1078,13 +1107,22 @@ public sealed class BoardManager : MonoBehaviour
             var view = clearTile.view;
             if (view != null)
             {
+                if (AudioManager.ins != null)
+                {
+                    AudioManager.ins.PlayTileBreak();
+                }
+
+                PlayTileBreakEffect(clearTile.worldPosition);
+
+                if (clearTile.resourceType != TileType.Empty)
+                {
+                    PlayResourceGlowEffect(clearTile.worldPosition);
+                }
+
                 PlayClearResourceFeedback(clearTile);
                 var keepResourceVisuals = clearTile.resourceType != TileType.Empty;
-                yield return view.PlayClear(clearTileSeconds, keepResourceVisuals);
-                if (!keepResourceVisuals)
-                {
-                    view.Render();
-                }
+
+                StartCoroutine(view.PlayClear(clearBounceHeight, clearBounceSeconds, clearTileSeconds, keepResourceVisuals));
             }
 
             if (clearStepDelay > 0f)
@@ -1092,6 +1130,9 @@ public sealed class BoardManager : MonoBehaviour
                 yield return new WaitForSeconds(clearStepDelay);
             }
         }
+
+        // Chờ toàn bộ các ô hoàn tất animation nảy và thu nhỏ
+        yield return new WaitForSeconds(clearBounceSeconds + clearTileSeconds);
 
         if (onResourceCleared != null)
         {
@@ -1111,6 +1152,30 @@ public sealed class BoardManager : MonoBehaviour
         {
             onComplete();
         }
+    }
+    
+
+    
+    private void PlayTileBreakEffect(Vector3 position)
+    {
+        if (!Application.isPlaying || tileBreakEffectPrefab == null) return;
+        var effect = Instantiate(tileBreakEffectPrefab, position, Quaternion.identity, transform);
+        Destroy(effect, 1.5f);
+    }
+
+    private void PlayResourceGlowEffect(Vector3 position)
+    {
+        if (!Application.isPlaying || resourceGlowEffectPrefab == null) return;
+        
+        var glow = Instantiate(resourceGlowEffectPrefab, position, Quaternion.identity, transform);
+        
+        var sRenderers = glow.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < sRenderers.Length; i++)
+        {
+            sRenderers[i].sortingOrder = Mathf.Min(sRenderers[i].sortingOrder, 15);
+        }
+
+        Destroy(glow, Mathf.Max(0.1f, resourceGlowLifetime));
     }
 
     private void PlayClearResourceFeedback(ClearTile clearTile)
@@ -1424,7 +1489,19 @@ public sealed class BoardManager : MonoBehaviour
     private void SpawnWaterSplash(Vector2Int coordinate)
     {
         var cell = GetCell(coordinate);
-        if (cell == null || cell.tileType != TileType.Water || waterSplashEffectPrefab == null)
+        if (cell == null || cell.tileType != TileType.Water)
+        {
+            return;
+        }
+
+        // --- PHÁT TIẾNG NƯỚC BẮN LAN TỎA ---
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlaySplash();
+        }
+        // ------------------------------------
+
+        if (waterSplashEffectPrefab == null)
         {
             return;
         }

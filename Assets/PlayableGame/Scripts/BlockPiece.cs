@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using TMPro;
@@ -6,11 +7,15 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
+    private const int TraySortingGroupOrder = 20;
+    private const int DragSortingGroupOrder = 2000;
+
     [SerializeField] private BlockData data;
 
     private BoardManager boardManager;
     private HarvestManager harvestManager;
     private BlockManager blockManager;
+    private SortingGroup sortingGroup;
     private Vector3 trayPosition;
     private Vector3 dragOffset;
     private Vector2Int targetOrigin;
@@ -18,33 +23,67 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private bool hasTarget;
     private float pieceSize;
     private float trayTileHorizontalSpacing = 1f;
+    private float trayTileVerticalSpacing = 1f;
     private float currentTileHorizontalSpacing = 1f;
+    private float currentTileVerticalSpacing = 1f;
     private float dragOffsetY;
     private Vector3 trayScale;
     private Vector2 visualCenter;
-    private readonly List<SpriteRenderer> tileRenderers = new List<SpriteRenderer>();
-    private readonly List<SpriteRenderer> resourceRenderers = new List<SpriteRenderer>();
     private bool pointerBlockedByTutorialUi;
 
     public BlockData Data => data;
     public Vector2Int TargetOrigin => targetOrigin;
     public bool HasTarget => hasTarget;
 
-    public void SetData(BlockData blockData, float pieceSize, float trayTileHorizontalSpacing, BoardManager boardManager, HarvestManager harvestManager, BlockManager blockManager, float dragOffsetY)
+    public void SetData(
+        BlockData blockData,
+        float pieceSize,
+        float trayTileHorizontalSpacing,
+        float trayTileVerticalSpacing,
+        BoardManager boardManager,
+        HarvestManager harvestManager,
+        BlockManager blockManager,
+        float dragOffsetY)
     {
         data = blockData;
         this.pieceSize = pieceSize;
         this.trayTileHorizontalSpacing = Mathf.Max(0.01f, trayTileHorizontalSpacing);
+        this.trayTileVerticalSpacing = Mathf.Max(0.01f, trayTileVerticalSpacing);
         currentTileHorizontalSpacing = this.trayTileHorizontalSpacing;
+        currentTileVerticalSpacing = this.trayTileVerticalSpacing;
         this.dragOffsetY = dragOffsetY;
         this.boardManager = boardManager;
         this.harvestManager = harvestManager;
         this.blockManager = blockManager;
         trayPosition = transform.position;
         trayScale = transform.localScale;
+
+        EnsureSortingGroup();
+        SetSortingGroupOrder(TraySortingGroupOrder);
+
         CalculateVisualCenter();
         BuildVisuals(pieceSize);
         ResizeCollider();
+    }
+
+    public void SetData(
+        BlockData blockData,
+        float pieceSize,
+        float trayTileHorizontalSpacing,
+        BoardManager boardManager,
+        HarvestManager harvestManager,
+        BlockManager blockManager,
+        float dragOffsetY)
+    {
+        SetData(
+            blockData,
+            pieceSize,
+            trayTileHorizontalSpacing,
+            1f,
+            boardManager,
+            harvestManager,
+            blockManager,
+            dragOffsetY);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -60,6 +99,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             return;
         }
 
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayPickupBlock();
+        }
+
         trayPosition = transform.position;
         trayScale = transform.localScale;
         if (blockManager != null)
@@ -69,10 +113,40 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
         ScaleToGridCell();
         dragOffset = transform.position - ScreenToWorld(eventData) + Vector3.up * dragOffsetY;
-        transform.position = ScreenToWorld(eventData) + dragOffset;
-        SetSortingOrder(20);
-    }
 
+        // Đẩy SortingGroup và ĐỒNG BỘ TRỰC TIẾP toàn bộ renderer con lên order 2000
+        SetSortingGroupOrder(DragSortingGroupOrder);
+        SetAllChildrenSortingOrder(DragSortingGroupOrder); // <-- THÊM DÒNG NÀY
+
+        var pos = ScreenToWorld(eventData) + dragOffset;
+        pos.z = -5f; // Đẩy Z âm sâu hơn để an toàn với camera
+        transform.position = pos;
+    }
+    private void SetAllChildrenSortingOrder(int baseOrder)
+    {
+        // Cập nhật tất cả SpriteRenderer con
+        var spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] != null)
+            {
+                // Giữ lại chênh lệch thứ tự tương đối giữa chân footer và mặt tile nếu có
+                var offset = spriteRenderers[i].sortingOrder % 100;
+                spriteRenderers[i].sortingOrder = baseOrder + offset;
+            }
+        }
+
+        // Cập nhật tất cả Canvas con (nếu có nhãn chữ/số trên Block)
+        var canvases = GetComponentsInChildren<Canvas>(true);
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            if (canvases[i] != null)
+            {
+                canvases[i].overrideSorting = true;
+                canvases[i].sortingOrder = baseOrder + 10;
+            }
+        }
+    }
     public void OnDrag(PointerEventData eventData)
     {
         if (pointerBlockedByTutorialUi)
@@ -85,7 +159,10 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             return;
         }
 
-        transform.position = ScreenToWorld(eventData) + dragOffset;
+        var pos = ScreenToWorld(eventData) + dragOffset;
+        pos.z = -3f;
+        transform.position = pos;
+
         targetOrigin = GetTargetOrigin();
         hasTarget = true;
         boardManager.ShowPreview(targetOrigin, data);
@@ -166,10 +243,35 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         }
 
         hasTarget = false;
-        SetTileHorizontalSpacing(trayTileHorizontalSpacing);
+        SetTileSpacing(trayTileHorizontalSpacing, trayTileVerticalSpacing);
+
+        // Trả lại Sorting Order gốc cho Tray
+        SetSortingGroupOrder(TraySortingGroupOrder);
+        SetAllChildrenSortingOrder(TraySortingGroupOrder); // <-- THÊM DÒNG NÀY
+
         transform.position = trayPosition;
         transform.localScale = trayScale;
-        SetSortingOrder(10);
+    }
+
+    private void EnsureSortingGroup()
+    {
+        if (sortingGroup == null)
+        {
+            sortingGroup = GetComponent<SortingGroup>();
+            if (sortingGroup == null)
+            {
+                sortingGroup = gameObject.AddComponent<SortingGroup>();
+            }
+        }
+    }
+
+    private void SetSortingGroupOrder(int order)
+    {
+        EnsureSortingGroup();
+        if (sortingGroup != null)
+        {
+            sortingGroup.sortingOrder = order;
+        }
     }
 
     private void ScaleToGridCell()
@@ -185,8 +287,6 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private void BuildVisuals(float pieceSize)
     {
         ClearVisuals();
-        tileRenderers.Clear();
-        resourceRenderers.Clear();
 
         if (data == null || !data.IsValid())
         {
@@ -195,30 +295,21 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 
         for (var i = 0; i < data.positions.Count; i++)
         {
+            var pos = data.positions[i];
             var prefab = blockManager != null ? blockManager.GetTilePrefab(data.tileTypes[i]) : null;
             var pieceObject = prefab != null ? Instantiate(prefab) : new GameObject("Piece_" + i);
             pieceObject.name = "Piece_" + i;
             pieceObject.transform.SetParent(transform, false);
-            pieceObject.transform.localPosition = GetTileLocalPosition(data.positions[i]);
+
+            pieceObject.transform.localPosition = GetTileLocalPosition(pos);
             pieceObject.transform.localScale = Vector3.one * pieceSize * 0.92f;
 
-            var renderers = pieceObject.GetComponentsInChildren<SpriteRenderer>();
-            if (renderers.Length == 0)
+            if (prefab == null)
             {
-                renderers = new[] { pieceObject.AddComponent<SpriteRenderer>() };
-            }
-
-            for (var rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
-            {
-                var renderer = renderers[rendererIndex];
-                if (prefab == null)
-                {
-                    renderer.sprite = boardManager != null ? boardManager.GetTileSprite(data.tileTypes[i]) : null;
-                    renderer.color = boardManager != null ? boardManager.GetTint(data.tileTypes[i]) : BoardManager.GetColor(data.tileTypes[i]);
-                }
-
-                renderer.sortingOrder = 10 + rendererIndex;
-                tileRenderers.Add(renderer);
+                var renderer = pieceObject.GetComponent<SpriteRenderer>();
+                if (renderer == null) renderer = pieceObject.AddComponent<SpriteRenderer>();
+                renderer.sprite = boardManager != null ? boardManager.GetTileSprite(data.tileTypes[i]) : null;
+                renderer.color = boardManager != null ? boardManager.GetTint(data.tileTypes[i]) : BoardManager.GetColor(data.tileTypes[i]);
             }
 
             var resourceType = data.resourceTypes[i];
@@ -231,12 +322,12 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             var resourceObject = new GameObject("Resource");
             resourceObject.transform.SetParent(pieceObject.transform, false);
             resourceObject.transform.localScale = Vector3.one;
+            resourceObject.transform.localPosition = new Vector3(0f, 0f, -0.05f);
 
             var resourceRenderer = resourceObject.AddComponent<SpriteRenderer>();
             resourceRenderer.sprite = boardManager != null ? boardManager.GetTileSprite(resourceType) : null;
             resourceRenderer.color = boardManager != null ? boardManager.GetTint(resourceType) : BoardManager.GetColor(resourceType);
             resourceRenderer.sortingOrder = 50;
-            resourceRenderers.Add(resourceRenderer);
         }
     }
 
@@ -268,7 +359,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         }
     }
 
-    private void SetTileHorizontalSpacing(float horizontalSpacing)
+    public void SetTileSpacing(float horizontalSpacing, float verticalSpacing)
     {
         if (data == null || data.positions == null)
         {
@@ -276,6 +367,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         }
 
         currentTileHorizontalSpacing = Mathf.Max(0.01f, horizontalSpacing);
+        currentTileVerticalSpacing = Mathf.Max(0.01f, verticalSpacing);
         for (var i = 0; i < data.positions.Count && i < transform.childCount; i++)
         {
             transform.GetChild(i).localPosition = GetTileLocalPosition(data.positions[i]);
@@ -287,8 +379,11 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector3 GetTileLocalPosition(Vector2Int position)
     {
         var centeredPosition = (Vector2)position - visualCenter;
-        centeredPosition.x *= currentTileHorizontalSpacing;
-        return new Vector3(centeredPosition.x, centeredPosition.y, 0f) * pieceSize;
+        var posX = centeredPosition.x * currentTileHorizontalSpacing * pieceSize;
+        var posY = centeredPosition.y * currentTileVerticalSpacing * pieceSize;
+
+        var localZ = position.y * 0.02f;
+        return new Vector3(posX, posY, localZ);
     }
 
     private Vector3 ScreenToWorld(PointerEventData eventData)
@@ -308,27 +403,6 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector2Int GetTargetOrigin()
     {
         return boardManager.WorldToCoordinate(transform.position) - targetAnchor;
-    }
-
-    private void SetSortingOrder(int sortingOrder)
-    {
-        for (var i = 0; i < tileRenderers.Count; i++)
-        {
-            var renderer = tileRenderers[i];
-            if (renderer != null)
-            {
-                renderer.sortingOrder = sortingOrder + i;
-            }
-        }
-
-        for (var i = 0; i < resourceRenderers.Count; i++)
-        {
-            var renderer = resourceRenderers[i];
-            if (renderer != null)
-            {
-                renderer.sortingOrder = sortingOrder + 50 + i;
-            }
-        }
     }
 
     private void ResizeCollider()

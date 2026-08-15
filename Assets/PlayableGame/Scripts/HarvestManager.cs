@@ -63,6 +63,7 @@ public sealed class HarvestManager : MonoBehaviour
     [SerializeField] private float resourceFlySeconds = 0.35f;
     [SerializeField] private float resourceFlyScale = 1.5f;
     [SerializeField] private AudioClip fullBoardBonusSound;
+[SerializeField] private GameObject resourceFlyTrailPrefab;
     private const float WinCardDelayAfterTruckStart = 3f;
 
     private PlayableUI playableUI;
@@ -424,8 +425,34 @@ public sealed class HarvestManager : MonoBehaviour
         renderer.color = Color.white;
         renderer.sortingOrder = 80;
 
+        // --- SPAWN TRAIL PREFAB ---
+        if (resourceFlyTrailPrefab != null)
+        {
+            var trailInstance = Instantiate(resourceFlyTrailPrefab, marker.transform);
+            trailInstance.transform.localPosition = Vector3.zero;
+            trailInstance.transform.localRotation = Quaternion.identity;
+
+            // Đảm bảo sorting order của TrailRenderer/Particle nằm sau hoặc cùng lớp với sprite nếu cần
+            var trailRenderer = trailInstance.GetComponent<TrailRenderer>();
+            if (trailRenderer != null)
+            {
+                trailRenderer.sortingOrder = 79; // Nằm ngay dưới sprite (80)
+            }
+        }
+        // --------------------------
+
         yield return MoveWorld(marker.transform, from, to, resourceFlySeconds);
         Destroy(marker);
+
+        if (goal != null)
+        {
+            goal.PlayBounce();
+        }
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayGoalHit();
+        }
 
         AddHarvest(resourceType, value);
         ConsumeResourceGoal(resourceType, value);

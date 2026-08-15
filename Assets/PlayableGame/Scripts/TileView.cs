@@ -92,7 +92,7 @@ public sealed class TileView : MonoBehaviour
         alpha = Mathf.Clamp01(alpha);
         placementPreviewObject = new GameObject("PlacementPreview");
         placementPreviewObject.transform.SetParent(transform, false);
-        placementPreviewObject.transform.localPosition = Vector3.zero;
+        placementPreviewObject.transform.localPosition = new Vector3(0f, 0f, 0.1f);
         placementPreviewObject.transform.localRotation = Quaternion.identity;
         placementPreviewObject.transform.localScale = Vector3.one;
 
@@ -109,7 +109,7 @@ public sealed class TileView : MonoBehaviour
             var renderers = tileObject.GetComponentsInChildren<SpriteRenderer>(true);
             for (var i = 0; i < renderers.Length; i++)
             {
-                ApplyPreviewRenderer(renderers[i], alpha, PlacementPreviewSortingOrder + i);
+                ApplyPreviewRenderer(renderers[i], alpha, renderers[i].sortingOrder);
             }
 
             UpdatePreviewLabels(tileObject, TileType.Empty, alpha);
@@ -119,9 +119,8 @@ public sealed class TileView : MonoBehaviour
             var renderer = placementPreviewObject.AddComponent<SpriteRenderer>();
             renderer.sprite = board != null ? board.GetTileSprite(tileType) : null;
             renderer.color = ApplyAlpha(board != null ? board.GetTint(tileType) : BoardManager.GetColor(tileType), alpha);
-            renderer.sortingOrder = PlacementPreviewSortingOrder;
+            renderer.sortingOrder = 0;
         }
-
     }
 
     public void ClearPlacementPreview()
@@ -310,9 +309,14 @@ public sealed class TileView : MonoBehaviour
         bounceAnimation = StartCoroutine(Bounce(height, seconds, delay));
     }
 
-    public IEnumerator PlayClear(float seconds, bool keepResourceVisuals = false)
+    public IEnumerator PlayClear(float bounceHeight, float bounceSeconds, float shrinkSeconds, bool keepResourceVisuals = false)
     {
         StopIdleAnimation();
+        if (bounceAnimation != null)
+        {
+            StopCoroutine(bounceAnimation);
+            bounceAnimation = null;
+        }
 
         var renderers = new List<SpriteRenderer>();
         AddRenderer(renderers, tileRenderer);
@@ -330,7 +334,12 @@ public sealed class TileView : MonoBehaviour
             yield break;
         }
 
-        seconds = Mathf.Max(0.01f, seconds);
+        bounceSeconds = Mathf.Max(0.01f, bounceSeconds);
+        shrinkSeconds = Mathf.Max(0.01f, shrinkSeconds);
+
+        var startPos = baseLocalPosition != Vector3.zero ? baseLocalPosition : transform.localPosition;
+        var peakPos = startPos + Vector3.up * bounceHeight;
+
         var scales = new Vector3[renderers.Count];
         var colors = new Color[renderers.Count];
 
@@ -340,43 +349,65 @@ public sealed class TileView : MonoBehaviour
             colors[i] = renderers[i].color;
         }
 
-        for (var elapsed = 0f; elapsed < seconds; elapsed += Time.deltaTime)
+        // --- Phase 1: Nảy lên đỉnh ---
+        var halfBounce = bounceSeconds * 0.5f;
+        for (var elapsed = 0f; elapsed < halfBounce; elapsed += Time.deltaTime)
         {
-            var t = elapsed / seconds;
+            var t = Mathf.SmoothStep(0f, 1f, elapsed / halfBounce);
+            transform.localPosition = Vector3.Lerp(startPos, peakPos, t);
+            yield return null;
+        }
+        transform.localPosition = peakPos;
+
+        // --- Phase 2: Rơi lại về vị trí ban đầu ---
+        for (var elapsed = 0f; elapsed < halfBounce; elapsed += Time.deltaTime)
+        {
+            var t = Mathf.SmoothStep(0f, 1f, elapsed / halfBounce);
+            transform.localPosition = Vector3.Lerp(peakPos, startPos, t);
+            yield return null;
+        }
+        transform.localPosition = startPos;
+
+        // --- Phase 3: Thu nhỏ và mờ dần biến mất ---
+        for (var elapsed = 0f; elapsed < shrinkSeconds; elapsed += Time.deltaTime)
+        {
+            var t = elapsed / shrinkSeconds;
             for (var i = 0; i < renderers.Count; i++)
             {
-                if (renderers[i] == null)
-                {
-                    continue;
-                }
-
+                if (renderers[i] == null) continue;
                 var color = colors[i];
                 color.a = Mathf.Lerp(colors[i].a, 0f, t);
                 renderers[i].color = color;
                 renderers[i].transform.localScale = Vector3.Lerp(scales[i], Vector3.zero, t);
             }
-
             yield return null;
         }
 
+        // Khôi phục scale/color gốc cho Prefab
         for (var i = 0; i < renderers.Count; i++)
         {
-            if (renderers[i] == null)
-            {
-                continue;
-            }
-
+            if (renderers[i] == null) continue;
             renderers[i].color = colors[i];
             renderers[i].transform.localScale = scales[i];
         }
+        transform.localPosition = startPos;
 
-        if (keepResourceVisuals)
+        // --- XÓA/ẨN Ô GẠCH NGAY LẬP TỨC KHI HẾT ANIMATION ---
+        UpdateTileVisual();
+
+        if (!keepResourceVisuals)
         {
-            UpdateTileVisual();
-        }
-        else
-        {
+            if (resourceRenderer != null)
+            {
+                resourceRenderer.enabled = false;
+                resourceRenderer.sprite = null;
+            }
             HideChildRenderers("ResourceSprites");
+            ClearChild("ResourceSprites");
+            if (resourceValueLabel != null)
+            {
+                resourceValueLabel.gameObject.SetActive(false);
+            }
         }
     }
 

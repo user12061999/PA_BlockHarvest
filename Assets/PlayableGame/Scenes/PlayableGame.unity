@@ -818,10 +818,15 @@ MonoBehaviour:
   adjacentWaterBounceHeight: 0.18
   adjacentWaterBounceSeconds: 0.24
   connectedWaterBounceStepDelay: 0.04
+  clearBounceHeight: 0.18
+  clearBounceSeconds: 0.12
   clearTileSeconds: 0.08
   clearStepDelay: 0.03
   clearCameraShakeSeconds: 0.5
   clearCameraShakeMagnitude: 0.3
+  tileBreakEffectPrefab: {fileID: 3868148230245356851, guid: e6f7d310cddd24d2d88383f27970dd29, type: 3}
+  resourceGlowEffectPrefab: {fileID: 5965815716407496594, guid: 79b98ab98d4b04d04b5875644e9e38d4, type: 3}
+  resourceGlowLifetime: 5
   animalAnimations:
   - resourceType: 7
     framesPerSecond: 10
@@ -1916,12 +1921,20 @@ MonoBehaviour:
   bgSound: {fileID: 8300000, guid: ed09a50527a0fce4d88dc11e375118ac, type: 3}
   placeBlockSound: {fileID: 8300000, guid: 12c4703e58f00d84aa772861f5c96059, type: 3}
   invalidDropSound: {fileID: 8300000, guid: 16452b6e9a9878d42b9a0b3358afbd57, type: 3}
+  pickupBlockSound: {fileID: 8300000, guid: bfd27398ae70d5a4e960e49fa9db07c3, type: 3}
+  spawnBlocksSound: {fileID: 8300000, guid: cbc2800a98bf52c4aab0754ccb75dc17, type: 3}
   resourceGainSound: {fileID: 8300000, guid: b0e072ea2af656e43a7c9c7a7cf1fdb5, type: 3}
+  splashSound: {fileID: 8300000, guid: c33a44e57fdc20c4495235e786bbb9e0, type: 3}
+  dirt3x3Sound: {fileID: 8300000, guid: 251e395f07029564faf1f2b2e4ac335d, type: 3}
   animalEatSound: {fileID: 8300000, guid: 0d3e6157bd04f19498fa95841b7c052a, type: 3}
   clearBoardSound: {fileID: 8300000, guid: 05ee10f756f03db408bb61924d2eae95, type: 3}
+  tileBreakSound: {fileID: 8300000, guid: 0d2493997208e7c4fb76c20ecd7a9427, type: 3}
   resourceFlySound: {fileID: 8300000, guid: bfd27398ae70d5a4e960e49fa9db07c3, type: 3}
+  goalHitSound: {fileID: 8300000, guid: a7ba4b1409a27394c9418fd8be0d7f42, type: 3}
+  goalCompletedSound: {fileID: 8300000, guid: 8c70909608d18cd4bbc5ced02488a47d, type: 3}
   basketPickupSound: {fileID: 8300000, guid: d1f71737b3920094584af6608c48b07b, type: 3}
   truckMoveSound: {fileID: 8300000, guid: 58f8bb27ac00f434a9ca9a16a41373d4, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: 105455d38fd9ef041bdbab2fa528830f, type: 3}
 --- !u!4 &586374397
 Transform:
   m_ObjectHideFlags: 0
@@ -2601,6 +2614,7 @@ MonoBehaviour:
   resourceFlySeconds: 0.35
   resourceFlyScale: 2
   fullBoardBonusSound: {fileID: 8300000, guid: f689f51b21c3b0140b2a24eadd965a3f, type: 3}
+  resourceFlyTrailPrefab: {fileID: 5965815716407496594, guid: 66e192272a6a44c4c996429054cd2326, type: 3}
 --- !u!1 &1049224387
 GameObject:
   m_ObjectHideFlags: 0
@@ -4665,6 +4679,7 @@ MonoBehaviour:
   pieceSize: 0.48
   spawnCellScale: 0.48
   trayTileHorizontalSpacing: 0.87
+  trayTileVerticalSpacing: 0.87
   minSpawnSpacingInCells: 1.8
   dragOffsetY: 2
   trayHeightInCells: 2
