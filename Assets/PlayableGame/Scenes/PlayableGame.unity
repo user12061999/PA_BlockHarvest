@@ -311,6 +311,10 @@ MonoBehaviour:
   fullBoardBonusVisibleSeconds: 1.2
   fullBoardBonusScaleSeconds: 0.2
   fullBoardBonusMoveSeconds: 0.45
+  clockImpactSound: {fileID: 8300000, guid: ad04ad0d81c801648bb17379180ba857, type: 3}
+  shakeDuration: 0.25
+  shakeMagnitude: 27.96
+  punchScaleAmount: 1.3
   ctaPanel: {fileID: 0}
 --- !u!114 &44664882
 MonoBehaviour:
@@ -779,7 +783,7 @@ MonoBehaviour:
   centerOnCamera: 1
   centerGameplayWithTray: 1
   gameplayAnchorMin: {x: 0.05, y: 0}
-  gameplayAnchorMax: {x: 0.95, y: 0.78}
+  gameplayAnchorMax: {x: 0.95, y: 0.75}
   fitGameplayToAnchors: 1
   gameplayAnchorPadding: 0.2
   cameraCenterOffset: {x: 0, y: 0}
@@ -1127,7 +1131,7 @@ MonoBehaviour:
   m_text: Next Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
-  m_sharedMaterial: {fileID: 4131589085072178670, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
+  m_sharedMaterial: {fileID: 7614323575615406591, guid: 312fcdd5145ebe54fb01e8e011495955, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1289,6 +1293,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1350452331}
+  - {fileID: 1817795371}
   - {fileID: 766565206}
   - {fileID: 1398564578}
   m_Father: {fileID: 1060671569}
@@ -2591,7 +2596,7 @@ MonoBehaviour:
   - resourceType: 4
     amount: 17
   - resourceType: 4
-    amount: 25
+    amount: 23
   maxPlacements: 16
   extraPlacementsOnFullBoard: 4
   levelConfig: {fileID: 11400000, guid: 60f7bcac67189954aa8b5cfaea42a64e, type: 2}
@@ -2604,6 +2609,12 @@ MonoBehaviour:
   - kind: 0
     prefab: {fileID: 6335948923724669144, guid: 84fccee891f4007418357f4ff76b2d6c, type: 3}
   resourceGoalSpacing: -2.5
+  truckIntroStartPoint: {fileID: 1817795371}
+  truckIntroMoveSeconds: 0.45
+  goalDropFlySeconds: 0.35
+  goalDropInterval: 0.12
+  goalDropArcHeight: 0.6
+  goalLandSound: {fileID: 8300000, guid: af2e2987be390134bbad9b7ecfef010e, type: 3}
   truckPrefab: {fileID: 1350452330}
   truck: {fileID: 1350452331}
   loadedTruckSprite: {fileID: 21300000, guid: 4a37cd97184a09d448bcaa534b3c3297, type: 3}
@@ -3273,7 +3284,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1264314609
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3351,7 +3362,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4220,6 +4231,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1665728730}
   m_CullTransparentMesh: 1
+--- !u!1 &1817795370
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1817795371}
+  m_Layer: 0
+  m_Name: track_01 (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1817795371
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1817795370}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 18.571428, y: 8.03, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 237173933}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1848132882
 GameObject:
   m_ObjectHideFlags: 0
@@ -4237,7 +4279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1848132883
 RectTransform:
   m_ObjectHideFlags: 0

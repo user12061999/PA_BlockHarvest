@@ -629,54 +629,7 @@ public sealed class TileView : MonoBehaviour
             tilePrefabRenderers[i].color = tilePrefabColors[i] * tint;
         }
     }
-
-    private void UpdateResourceSprites()
-    {
-        ClearChild("ResourceSprites");
-        ClearChild("ResourceCount");
-        resourceSpritePositions.Clear();
-
-        if (cell.resourceType == TileType.Empty)
-        {
-            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
-            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
-            return;
-        }
-
-        if (cell.resourceType != TileType.Wheat && cell.resourceType != TileType.Flower)
-        {
-            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
-            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
-            resourceSpritePositions.Add(Vector3.zero);
-            return;
-        }
-
-        AddResourceSpritePositions(cell.resourceValue);
-        resourceRenderer.transform.localPosition = GetResourcePosition(resourceSpritePositions[0]);
-        resourceRenderer.transform.localScale = GetAnimatedResourceScale();
-
-        if (resourceSpritePositions.Count <= 1)
-        {
-            return;
-        }
-
-        var root = new GameObject("ResourceSprites").transform;
-        root.SetParent(transform, false);
-
-        for (var i = 1; i < resourceSpritePositions.Count; i++)
-        {
-            var marker = new GameObject(cell.resourceType + "_" + i);
-            marker.transform.SetParent(root, false);
-            marker.transform.localPosition = GetResourcePosition(resourceSpritePositions[i]);
-            marker.transform.localScale = GetAnimatedResourceScale();
-
-            var markerRenderer = marker.AddComponent<SpriteRenderer>();
-            markerRenderer.sprite = board.GetTileSprite(cell.resourceType);
-            markerRenderer.color = board.GetTint(cell.resourceType);
-            markerRenderer.sortingLayerID = resourceRenderer.sortingLayerID;
-            markerRenderer.sortingOrder = resourceRenderer.sortingOrder;
-        }
-    }
+   
 
     private Vector3 GetResourceScale()
     {
@@ -705,16 +658,78 @@ public sealed class TileView : MonoBehaviour
 
         var columns = Mathf.CeilToInt(Mathf.Sqrt(count));
         var rows = Mathf.CeilToInt((float)count / columns);
-        var spacingX = columns <= 1 ? 0f : 0.48f / (columns - 1);
-        var spacingY = rows <= 1 ? 0f : 0.42f / (rows - 1);
+        var spacingX = columns <= 1 ? 0f : 0.576f / (columns - 1);
+        var spacingY = rows <= 1 ? 0f : 0.504f / (rows - 1);
         var startX = -spacingX * (columns - 1) * 0.5f;
-        var startY = 0.22f;
+        
+        // Tăng startY lên 0.1f (0.22f -> 0.32f) để kéo hàng trên cùng lên cao hơn
+        var startY = 0.32f;
 
         for (var i = 0; i < count; i++)
         {
             var column = i % columns;
             var row = i / columns;
             resourceSpritePositions.Add(new Vector3(startX + column * spacingX, startY - row * spacingY, 0f));
+        }
+    }
+
+    private void UpdateResourceSprites()
+    {
+        ClearChild("ResourceSprites");
+        ClearChild("ResourceCount");
+        resourceSpritePositions.Clear();
+
+        var baseSortingOrder = 1;
+
+        if (cell.resourceType == TileType.Empty)
+        {
+            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
+            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
+            resourceRenderer.sortingOrder = baseSortingOrder;
+            return;
+        }
+
+        if (cell.resourceType != TileType.Wheat && cell.resourceType != TileType.Flower)
+        {
+            resourceRenderer.transform.localPosition = GetResourcePosition(Vector3.zero);
+            resourceRenderer.transform.localScale = GetAnimatedResourceScale();
+            resourceRenderer.sortingOrder = baseSortingOrder;
+            resourceSpritePositions.Add(Vector3.zero);
+            return;
+        }
+
+        AddResourceSpritePositions(cell.resourceValue);
+
+        var columns = Mathf.CeilToInt(Mathf.Sqrt(Mathf.Clamp(cell.resourceValue, 1, 9)));
+        var firstRow = 0 / columns; // Row của phần tử 0 luôn là 0
+
+        resourceRenderer.transform.localPosition = GetResourcePosition(resourceSpritePositions[0]);
+        resourceRenderer.transform.localScale = GetAnimatedResourceScale();
+        resourceRenderer.sortingOrder = baseSortingOrder + firstRow;
+
+        if (resourceSpritePositions.Count <= 1)
+        {
+            return;
+        }
+
+        var root = new GameObject("ResourceSprites").transform;
+        root.SetParent(transform, false);
+
+        for (var i = 1; i < resourceSpritePositions.Count; i++)
+        {
+            var row = i / columns;
+            var marker = new GameObject(cell.resourceType + "_" + i);
+            marker.transform.SetParent(root, false);
+            marker.transform.localPosition = GetResourcePosition(resourceSpritePositions[i]);
+            marker.transform.localScale = GetAnimatedResourceScale();
+
+            var markerRenderer = marker.AddComponent<SpriteRenderer>();
+            markerRenderer.sprite = board.GetTileSprite(cell.resourceType);
+            markerRenderer.color = board.GetTint(cell.resourceType);
+            markerRenderer.sortingLayerID = resourceRenderer.sortingLayerID;
+            
+            // Hàng dưới (row lớn hơn) có sortingOrder cao hơn hàng trên (row nhỏ hơn)
+            markerRenderer.sortingOrder = baseSortingOrder + row;
         }
     }
 

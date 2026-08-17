@@ -117,17 +117,79 @@ public sealed class BlockManager : MonoBehaviour
         var candidates = FindPlayableBlocks();
         var customBlocks = GetCustomSpawnBlocks();
 
+        var spawnedWideBlock = false;
+
         for (var i = 0; i < 3; i++)
         {
-            var blockData = customBlocks != null && i < customBlocks.Count && customBlocks[i] != null && customBlocks[i].IsValid()
-                ? CopyBlockData(customBlocks[i])
-                : candidates.Count > 0
-                ? candidates[Random.Range(0, candidates.Count)]
-                : BlockData.Random();
+            BlockData blockData = null;
+
+            if (customBlocks != null && i < customBlocks.Count && customBlocks[i] != null && customBlocks[i].IsValid())
+            {
+                blockData = CopyBlockData(customBlocks[i]);
+                if (IsWideBlock(blockData, minWidth: 4))
+                {
+                    spawnedWideBlock = true;
+                }
+            }
+            else if (candidates.Count > 0)
+            {
+                blockData = PickRandomCandidate(candidates, spawnedWideBlock, minWidth: 4);
+                if (IsWideBlock(blockData, minWidth: 4))
+                {
+                    spawnedWideBlock = true;
+                }
+            }
+            else
+            {
+                blockData = BlockData.Random();
+            }
+
             CreateBlockPiece(blockData, i);
         }
     }
+private BlockData PickRandomCandidate(List<BlockData> candidates, bool blockWideAlreadySpawned, int minWidth = 4)
+    {
+        // Lọc danh sách candidate nếu đã có 1 block ngang >= 4
+        List<BlockData> pool = candidates;
+        if (blockWideAlreadySpawned)
+        {
+            var filtered = new List<BlockData>();
+            for (var i = 0; i < candidates.Count; i++)
+            {
+                if (!IsWideBlock(candidates[i], minWidth))
+                {
+                    filtered.Add(candidates[i]);
+                }
+            }
 
+            if (filtered.Count > 0)
+            {
+                pool = filtered;
+            }
+        }
+
+        return pool[Random.Range(0, pool.Count)];
+    }
+private bool IsWideBlock(BlockData blockData, int minWidth = 4)
+    {
+        if (blockData == null || blockData.positions == null || blockData.positions.Count == 0)
+        {
+            return false;
+        }
+
+        var minX = int.MaxValue;
+        var maxX = int.MinValue;
+
+        for (var i = 0; i < blockData.positions.Count; i++)
+        {
+            var x = blockData.positions[i].x;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+
+        var width = (maxX - minX) + 1;
+        return width >= minWidth;
+    }
     private List<BlockData> GetCustomSpawnBlocks()
     {
         var config = GetLevelConfig();

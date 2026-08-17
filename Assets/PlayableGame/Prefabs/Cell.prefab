@@ -141,7 +141,7 @@ MonoBehaviour:
   resourceValueLabel: {fileID: 4408627616694855075}
   gridCellColor: {r: 0.6901961, g: 0.6901961, b: 0.6901961, a: 1}
   resourceScale: 1.2
-  resourceYOffset: 0.1
+  resourceYOffset: 0.2
 --- !u!1 &1510381713604157427
 GameObject:
   m_ObjectHideFlags: 0

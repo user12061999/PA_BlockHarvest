@@ -19,11 +19,17 @@ public sealed class PlayableUI : MonoBehaviour
     [SerializeField] private float fullBoardBonusVisibleSeconds = 2f;
     [SerializeField] private float fullBoardBonusScaleSeconds = 0.2f;
     [SerializeField] private float fullBoardBonusMoveSeconds = 0.45f;
+    [Header("Bonus Impact / Shake")]
+    [SerializeField] private AudioClip clockImpactSound;
+    [SerializeField] private float shakeDuration = 0.25f;
+    [SerializeField] private float shakeMagnitude = 8f;
+    [SerializeField] private float punchScaleAmount = 1.3f;
     [SerializeField] private GameObject ctaPanel;
 
     private BlockManager blockManager;
     private CanvasGroup fullBoardBonusCanvasGroup;
     private Coroutine fullBoardBonusRoutine;
+    private Coroutine shakeRoutine;
 
     public bool IsTutorialVisible => false;
 
@@ -294,6 +300,10 @@ public sealed class PlayableUI : MonoBehaviour
 
         fullBoardBonusClock.position = to;
 
+        // Âm thanh và rung lắc khi đồng hồ chạm đích
+        PlayClockImpactSound();
+        PlayTargetShake();
+
         fullBoardBonusClock.localPosition = clockStartLocalPosition;
         fullBoardBonusClock.localScale = clockStartScale;
         fullBoardBonusPanel.localScale = panelStartScale;
@@ -309,6 +319,65 @@ public sealed class PlayableUI : MonoBehaviour
         {
             onComplete();
         }
+    }
+
+    private void PlayClockImpactSound()
+    {
+        if (AudioManager.ins == null)
+        {
+            return;
+        }
+
+        if (clockImpactSound != null)
+        {
+            AudioManager.ins.PlaySound(clockImpactSound);
+            return;
+        }
+
+        AudioManager.ins.PlayGoalHit();
+    }
+
+    private void PlayTargetShake()
+    {
+        if (remainingMovesLabel == null)
+        {
+            return;
+        }
+
+        if (shakeRoutine != null)
+        {
+            StopCoroutine(shakeRoutine);
+        }
+
+        shakeRoutine = StartCoroutine(ShakeTargetRoutine(remainingMovesLabel.rectTransform));
+    }
+
+    private IEnumerator ShakeTargetRoutine(RectTransform target)
+    {
+        var originalPos = target.anchoredPosition;
+        var originalScale = target.localScale;
+        var duration = Mathf.Max(0.01f, shakeDuration);
+
+        for (var elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            var t = elapsed / duration;
+            var decay = 1f - t;
+
+            // Rung vị trí ngẫu nhiên
+            var offsetX = UnityEngine.Random.Range(-1f, 1f) * shakeMagnitude * decay;
+            var offsetY = UnityEngine.Random.Range(-1f, 1f) * shakeMagnitude * decay;
+            target.anchoredPosition = originalPos + new Vector2(offsetX, offsetY);
+
+            // Punch scale (phóng to nhẹ rồi thu lại)
+            var scaleMultiplier = 1f + Mathf.Sin(t * Mathf.PI) * (punchScaleAmount - 1f);
+            target.localScale = originalScale * scaleMultiplier;
+
+            yield return null;
+        }
+
+        target.anchoredPosition = originalPos;
+        target.localScale = originalScale;
+        shakeRoutine = null;
     }
 
     private void HideLegacyTutorialPanel()

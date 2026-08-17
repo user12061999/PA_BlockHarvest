@@ -29,10 +29,7 @@ MonoBehaviour:
   - {x: 2, y: 5}
   - {x: 3, y: 5}
   - {x: 4, y: 5}
-  wheatGoal: 10
-  meatGoal: 0
-  flowerGoal: 0
-  fishGoal: 0
+  resourceGoals: []
   maxPlacements: 12
   waterBounceHeight: 0.5
   waterBounceSeconds: 0.24
@@ -50,11 +47,11 @@ MonoBehaviour:
       resourceTypes: 0000000000000000000000000000000000000000
     - name: Custom 5 Tile Block
       positions:
-      - {x: 0, y: 0}
       - {x: 1, y: 0}
       - {x: 2, y: 0}
       - {x: 2, y: 1}
       - {x: 2, y: 2}
+      - {x: 0, y: 0}
       tileTypes: 0200000002000000020000000200000002000000
       resourceTypes: 0000000000000000000000000000000000000000
     - name: Custom 5 Tile Block
@@ -82,13 +79,11 @@ MonoBehaviour:
       - {x: 1, y: 1}
       tileTypes: 03000000030000000300000003000000
       resourceTypes: 00000000000000000000000000000000
-    - name: Custom 3 Tile Block
+    - name: Custom 1 Tile Block
       positions:
-      - {x: 0, y: 0}
-      - {x: 1, y: 0}
       - {x: 2, y: 0}
-      tileTypes: 030000000300000003000000
-      resourceTypes: 000000000000000000000000
+      tileTypes: 03000000
+      resourceTypes: 00000000
   - blocks:
     - name: Custom 1 Tile Block
       positions:
@@ -107,3 +102,131 @@ MonoBehaviour:
       - {x: 1, y: 0}
       tileTypes: 0200000002000000
       resourceTypes: 0600000000000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 08000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 00000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 06000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 00000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 00000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 00000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 00000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 04000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 06000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 00000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 00000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 00000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 09000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 04000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 06000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 07000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 04000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 06000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 05000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 00000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 00000000
+  - blocks:
+    - name: Grass Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 01000000
+      resourceTypes: 07000000
+    - name: Dirt Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 02000000
+      resourceTypes: 04000000
+    - name: Water Dot
+      positions:
+      - {x: 0, y: 0}
+      tileTypes: 03000000
+      resourceTypes: 00000000

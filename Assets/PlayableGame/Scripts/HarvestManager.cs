@@ -48,22 +48,34 @@ public sealed class HarvestManager : MonoBehaviour
     [SerializeField] private int maxPlacements = 12;
     [SerializeField] private int extraPlacementsOnFullBoard = 3;
     [SerializeField] private LevelConfig levelConfig;
+
     [Header("World Resource Goals")]
     [SerializeField] private Transform resourceGoalRoot;
     [SerializeField] private List<ResourceGoalSlot> resourceGoalPrefabs = new List<ResourceGoalSlot>();
     [SerializeField] private float resourceGoalSpacing = 1f;
+
+    [Header("Intro Truck & Goal Drop")]
+    [Tooltip("Kéo Transform điểm xuất phát của xe tải vào đây")]
+    [SerializeField] private Transform truckIntroStartPoint;
+    [SerializeField] private float truckIntroMoveSeconds = 0.45f;
+    [SerializeField] private float goalDropFlySeconds = 0.35f;
+    [SerializeField] private float goalDropInterval = 0.12f;
+    [SerializeField] private float goalDropArcHeight = 0.6f;
+    [SerializeField] private AudioClip goalLandSound;
+
     [Header("End Truck")]
     [SerializeField] private GameObject truckPrefab;
     [SerializeField] private Transform truck;
     [SerializeField] private Sprite loadedTruckSprite;
-    [SerializeField] private Vector3 truckExitWorldPosition = new Vector3(5f, 0f, 0f);
+    [SerializeField] private Vector3 truckExitWorldPosition = new Vector3(6f, 0f, 0f);
     [SerializeField] private float truckMoveSeconds = 0.35f;
     [SerializeField] private float basketPickupSeconds = 0.12f;
     [SerializeField] private GameObject basketPickupEffectPrefab;
     [SerializeField] private float resourceFlySeconds = 0.35f;
     [SerializeField] private float resourceFlyScale = 1.5f;
     [SerializeField] private AudioClip fullBoardBonusSound;
-[SerializeField] private GameObject resourceFlyTrailPrefab;
+    [SerializeField] private GameObject resourceFlyTrailPrefab;
+
     private const float WinCardDelayAfterTruckStart = 3f;
 
     private PlayableUI playableUI;
@@ -92,6 +104,7 @@ public sealed class HarvestManager : MonoBehaviour
     private bool levelCompleted;
     private bool winCardDelayScheduled;
     private Coroutine winCardDelayRoutine;
+    private Coroutine introRoutine;
     private readonly List<RuntimeResourceGoal> activeResourceGoals = new List<RuntimeResourceGoal>();
 
     public int WheatGoal => GetTotalGoal(ResourceGoalKind.Wheat);
@@ -116,6 +129,12 @@ public sealed class HarvestManager : MonoBehaviour
 
     public void ResetObjectives()
     {
+        if (introRoutine != null)
+        {
+            StopCoroutine(introRoutine);
+            introRoutine = null;
+        }
+
         ClearResourceGoals();
         ApplyLevelConfig();
         wheat = 0;
@@ -425,21 +444,18 @@ public sealed class HarvestManager : MonoBehaviour
         renderer.color = Color.white;
         renderer.sortingOrder = 80;
 
-        // --- SPAWN TRAIL PREFAB ---
         if (resourceFlyTrailPrefab != null)
         {
             var trailInstance = Instantiate(resourceFlyTrailPrefab, marker.transform);
             trailInstance.transform.localPosition = Vector3.zero;
             trailInstance.transform.localRotation = Quaternion.identity;
 
-            // Đảm bảo sorting order của TrailRenderer/Particle nằm sau hoặc cùng lớp với sprite nếu cần
             var trailRenderer = trailInstance.GetComponent<TrailRenderer>();
             if (trailRenderer != null)
             {
-                trailRenderer.sortingOrder = 79; // Nằm ngay dưới sprite (80)
+                trailRenderer.sortingOrder = 79;
             }
         }
-        // --------------------------
 
         yield return MoveWorld(marker.transform, from, to, resourceFlySeconds);
         Destroy(marker);
@@ -766,6 +782,9 @@ public sealed class HarvestManager : MonoBehaviour
         var activeCount = CountActiveResourceGoals();
         var spawnedIndex = 0;
 
+        var spawnedViews = new List<ResourceGoalView>();
+        var targetWorldPositions = new List<Vector3>();
+
         for (var i = 0; i < activeResourceGoals.Count; i++)
         {
             var goal = activeResourceGoals[i];
@@ -777,6 +796,7 @@ public sealed class HarvestManager : MonoBehaviour
             var goalObject = Instantiate(goal.prefab, parent);
             goalObject.transform.localPosition = Vector3.right * ((spawnedIndex - (activeCount - 1) * 0.5f) * resourceGoalSpacing);
             goalObject.transform.localRotation = Quaternion.identity;
+
             goal.view = goalObject.GetComponent<ResourceGoalView>();
             if (goal.view == null)
             {
@@ -784,8 +804,116 @@ public sealed class HarvestManager : MonoBehaviour
             }
 
             goal.view.Initialize();
+
+            spawnedViews.Add(goal.view);
+            targetWorldPositions.Add(goalObject.transform.position);
+
+            if (Application.isPlaying)
+            {
+                goalObject.SetActive(false);
+            }
+
             spawnedIndex++;
         }
+
+        if (Application.isPlaying && spawnedViews.Count > 0)
+        {
+            introRoutine = StartCoroutine(PlayIntroTruckSequence(spawnedViews, targetWorldPositions));
+        }
+    }
+
+    private IEnumerator PlayIntroTruckSequence(List<ResourceGoalView> views, List<Vector3> targetPositions)
+    {
+        var truckTransform = GetTruckTransform();
+        if (truckTransform == null)
+        {
+            for (var i = 0; i < views.Count; i++)
+            {
+                if (views[i] != null) views[i].gameObject.SetActive(true);
+            }
+            yield break;
+        }
+
+        var truckStopPosition = truckTransform.position;
+        var truckStartPosition = truckIntroStartPoint != null 
+            ? truckIntroStartPoint.position 
+            : truckStopPosition + Vector3.left * 6f;
+
+        truckTransform.gameObject.SetActive(true);
+        truckTransform.position = truckStartPosition;
+
+        if (AudioManager.ins != null)
+        {
+            AudioManager.ins.PlayTruckMove();
+        }
+
+        // 1. Xe tải chạy từ ngoài vào vị trí đã đặt
+        yield return MoveWorld(truckTransform, truckStartPosition, truckStopPosition, truckIntroMoveSeconds);
+
+        // 2. Thả các ResourceGoal ra
+        for (var i = 0; i < views.Count; i++)
+        {
+            var view = views[i];
+            if (view == null) continue;
+
+            view.gameObject.SetActive(true);
+            StartCoroutine(DropGoalRoutine(view.transform, truckTransform.position, targetPositions[i], goalDropFlySeconds, goalDropArcHeight, view));
+
+            if (goalDropInterval > 0f)
+            {
+                yield return new WaitForSeconds(goalDropInterval);
+            }
+        }
+
+        // Chờ các mục tiêu bay xong
+        yield return new WaitForSeconds(goalDropFlySeconds);
+
+        // Đã xóa phần xe tải chạy ra khỏi màn hình
+        // Xe tải sẽ đứng im tại truckStopPosition để chờ màn chơi kết thúc
+        introRoutine = null;
+    }
+
+    private IEnumerator DropGoalRoutine(Transform target, Vector3 from, Vector3 to, float duration, float arcHeight, ResourceGoalView view)
+    {
+        duration = Mathf.Max(0.01f, duration);
+        var baseScale = target.localScale;
+        target.localScale = Vector3.zero;
+
+        for (var elapsed = 0f; elapsed < duration; elapsed += Time.deltaTime)
+        {
+            var t = Mathf.Clamp01(elapsed / duration);
+            var linearPos = Vector3.Lerp(from, to, t);
+            var heightOffset = Mathf.Sin(t * Mathf.PI) * arcHeight;
+            target.position = linearPos + Vector3.up * heightOffset;
+            target.localScale = Vector3.Lerp(Vector3.zero, baseScale, Mathf.SmoothStep(0f, 1f, t * 1.5f));
+            yield return null;
+        }
+
+        target.position = to;
+        target.localScale = baseScale;
+
+        PlayGoalLandSound();
+
+        if (view != null)
+        {
+            view.PlayBounce();
+        }
+    }
+
+    private void PlayGoalLandSound()
+    {
+        if (AudioManager.ins == null)
+        {
+            return;
+        }
+
+        if (goalLandSound != null)
+        {
+            AudioManager.ins.PlaySound(goalLandSound);
+            return;
+        }
+
+        AudioManager.ins.PlayGoalHit();
     }
 
     private int CountActiveResourceGoals()
@@ -1051,6 +1179,7 @@ public sealed class HarvestManager : MonoBehaviour
             yield break;
         }
 
+        truckTransform.gameObject.SetActive(true);
         var stops = BuildTruckPickupStops(truckTransform.position, truckExitWorldPosition);
         for (var i = 0; i < stops.Count; i++)
         {
@@ -1174,7 +1303,11 @@ public sealed class HarvestManager : MonoBehaviour
             return null;
         }
 
-        spawnedTruck = Instantiate(truckPrefab);
+        if (spawnedTruck == null)
+        {
+            spawnedTruck = Instantiate(truckPrefab);
+        }
+
         return spawnedTruck.transform;
     }
 
