@@ -2592,11 +2592,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultResourceGoals:
   - resourceType: 4
-    amount: 20
+    amount: 10
   - resourceType: 4
-    amount: 17
+    amount: 10
   - resourceType: 4
-    amount: 23
+    amount: 10
   maxPlacements: 16
   extraPlacementsOnFullBoard: 4
   levelConfig: {fileID: 11400000, guid: 60f7bcac67189954aa8b5cfaea42a64e, type: 2}
@@ -3284,7 +3284,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1264314609
 RectTransform:
   m_ObjectHideFlags: 0

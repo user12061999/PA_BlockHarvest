@@ -2258,10 +2258,6 @@
                 "excluded": true
             },
             {
-                "name": "UnityEngine.Rendering.SortingGroup",
-                "excluded": true
-            },
-            {
                 "name": "UnityEngine.RenderTexture",
                 "excluded": true
             },
@@ -29865,7 +29861,7 @@
                     },
                     {
                         "name": "Random",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RandomFromShape",
@@ -29877,7 +29873,7 @@
                     },
                     {
                         "name": "RandomShape",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ShapeVariants",
@@ -29885,7 +29881,7 @@
                     },
                     {
                         "name": "RandomGround",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "RandomResource",
@@ -30116,6 +30112,14 @@
                     {
                         "name": "ShowPlacementTutorial",
                         "excluded": false
+                    },
+                    {
+                        "name": "PickRandomCandidate",
+                        "excluded": false
+                    },
+                    {
+                        "name": "IsWideBlock",
+                        "excluded": false
                     }
                 ]
             },
@@ -30188,10 +30192,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetSortingOrder",
-                        "excluded": false
-                    },
-                    {
                         "name": "ResizeCollider",
                         "excluded": false
                     },
@@ -30204,11 +30204,27 @@
                         "excluded": false
                     },
                     {
-                        "name": "SetTileHorizontalSpacing",
+                        "name": "GetTileLocalPosition",
                         "excluded": false
                     },
                     {
-                        "name": "GetTileLocalPosition",
+                        "name": "SetData$1",
+                        "excluded": false
+                    },
+                    {
+                        "name": "OffsetAllChildrenSortingOrder",
+                        "excluded": false
+                    },
+                    {
+                        "name": "EnsureSortingGroup",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetSortingGroupOrder",
+                        "excluded": false
+                    },
+                    {
+                        "name": "SetTileSpacing",
                         "excluded": false
                     }
                 ]
@@ -30351,7 +30367,7 @@
                     },
                     {
                         "name": "MoveResource",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ClearBoard",
@@ -30515,7 +30531,7 @@
                     },
                     {
                         "name": "PlayAnimalEat$2",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "GetVisibleCenterLocal",
@@ -30571,6 +30587,14 @@
                     },
                     {
                         "name": "CameraShakeRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTileBreakEffect",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayResourceGlowEffect",
                         "excluded": false
                     }
                 ]
@@ -30823,15 +30847,15 @@
                     },
                     {
                         "name": "BeginAnimalAction",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "CompleteAnimalAction",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "FailLevel",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ApplyLoadedTruckSprite",
@@ -30919,6 +30943,18 @@
                     },
                     {
                         "name": "GetResourceGoalPrefab",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayIntroTruckSequence",
+                        "excluded": false
+                    },
+                    {
+                        "name": "DropGoalRoutine",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayGoalLandSound",
                         "excluded": false
                     }
                 ]
@@ -31012,6 +31048,18 @@
                     {
                         "name": "PlayFullBoardMoveBonusRoutine",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlayClockImpactSound",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTargetShake",
+                        "excluded": false
+                    },
+                    {
+                        "name": "ShakeTargetRoutine",
+                        "excluded": false
                     }
                 ]
             },
@@ -31045,6 +31093,14 @@
                     },
                     {
                         "name": "SetFill",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayBounce",
+                        "excluded": false
+                    },
+                    {
+                        "name": "BounceRoutine",
                         "excluded": false
                     }
                 ]
@@ -34709,7 +34765,7 @@
                     },
                     {
                         "name": "PlayAnimalEat",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "PlayClearBoard",
@@ -34738,6 +34794,38 @@
                     {
                         "name": "PlayMusic",
                         "excluded": false
+                    },
+                    {
+                        "name": "PlayPickupBlock",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlaySpawnBlocks",
+                        "excluded": true
+                    },
+                    {
+                        "name": "PlaySplash",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayDirt3x3",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayTileBreak",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayGoalHit",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayGoalCompleted",
+                        "excluded": false
+                    },
+                    {
+                        "name": "PlayButtonClick",
+                        "excluded": true
                     }
                 ]
             },
@@ -34785,7 +34873,7 @@
                     },
                     {
                         "name": "ShowLoseCard",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "ShowWinCard",
@@ -34797,7 +34885,7 @@
                     },
                     {
                         "name": "showlosecard",
-                        "excluded": true
+                        "excluded": false
                     },
                     {
                         "name": "OnClickEndCard",
@@ -38556,6 +38644,48 @@
                     {
                         "name": "SetClass",
                         "excluded": true
+                    }
+                ]
+            },
+            {
+                "className": "UnityEngine.Rendering.SortingGroup",
+                "staticMethods": [],
+                "instanceMethods": [
+                    {
+                        "name": "UpdateAllSortingGroups",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingLayerIndex#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingLayerIndex#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingLayerID#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingLayerID#set",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingOrder#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "sortingOrder#set",
+                        "excluded": false
+                    },
+                    {
+                        "name": "sortingLayerName#get",
+                        "excluded": true
+                    },
+                    {
+                        "name": "ctor",
+                        "excluded": false
                     }
                 ]
             }

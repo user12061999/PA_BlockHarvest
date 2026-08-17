@@ -9,6 +9,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
 {
     private const int TraySortingGroupOrder = 20;
     private const int DragSortingGroupOrder = 2000;
+    private const int DragSortingOffset = 200;
 
     [SerializeField] private BlockData data;
 
@@ -30,6 +31,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector3 trayScale;
     private Vector2 visualCenter;
     private bool pointerBlockedByTutorialUi;
+    private bool isDragging;
 
     public BlockData Data => data;
     public Vector2Int TargetOrigin => targetOrigin;
@@ -114,39 +116,18 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         ScaleToGridCell();
         dragOffset = transform.position - ScreenToWorld(eventData) + Vector3.up * dragOffsetY;
 
-        // Đẩy SortingGroup và ĐỒNG BỘ TRỰC TIẾP toàn bộ renderer con lên order 2000
         SetSortingGroupOrder(DragSortingGroupOrder);
-        SetAllChildrenSortingOrder(DragSortingGroupOrder); // <-- THÊM DÒNG NÀY
+        if (!isDragging)
+        {
+            OffsetAllChildrenSortingOrder(DragSortingOffset);
+            isDragging = true;
+        }
 
         var pos = ScreenToWorld(eventData) + dragOffset;
-        pos.z = -5f; // Đẩy Z âm sâu hơn để an toàn với camera
+        pos.z = -5f;
         transform.position = pos;
     }
-    private void SetAllChildrenSortingOrder(int baseOrder)
-    {
-        // Cập nhật tất cả SpriteRenderer con
-        var spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
-        for (int i = 0; i < spriteRenderers.Length; i++)
-        {
-            if (spriteRenderers[i] != null)
-            {
-                // Giữ lại chênh lệch thứ tự tương đối giữa chân footer và mặt tile nếu có
-                var offset = spriteRenderers[i].sortingOrder % 100;
-                spriteRenderers[i].sortingOrder = baseOrder + offset;
-            }
-        }
 
-        // Cập nhật tất cả Canvas con (nếu có nhãn chữ/số trên Block)
-        var canvases = GetComponentsInChildren<Canvas>(true);
-        for (int i = 0; i < canvases.Length; i++)
-        {
-            if (canvases[i] != null)
-            {
-                canvases[i].overrideSorting = true;
-                canvases[i].sortingOrder = baseOrder + 10;
-            }
-        }
-    }
     public void OnDrag(PointerEventData eventData)
     {
         if (pointerBlockedByTutorialUi)
@@ -245,12 +226,37 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         hasTarget = false;
         SetTileSpacing(trayTileHorizontalSpacing, trayTileVerticalSpacing);
 
-        // Trả lại Sorting Order gốc cho Tray
         SetSortingGroupOrder(TraySortingGroupOrder);
-        SetAllChildrenSortingOrder(TraySortingGroupOrder); // <-- THÊM DÒNG NÀY
+        if (isDragging)
+        {
+            OffsetAllChildrenSortingOrder(-DragSortingOffset);
+            isDragging = false;
+        }
 
         transform.position = trayPosition;
         transform.localScale = trayScale;
+    }
+
+    private void OffsetAllChildrenSortingOrder(int offset)
+    {
+        var spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        for (var i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] != null)
+            {
+                spriteRenderers[i].sortingOrder += offset;
+            }
+        }
+
+        var canvases = GetComponentsInChildren<Canvas>(true);
+        for (var i = 0; i < canvases.Length; i++)
+        {
+            if (canvases[i] != null)
+            {
+                canvases[i].overrideSorting = true;
+                canvases[i].sortingOrder += offset;
+            }
+        }
     }
 
     private void EnsureSortingGroup()
@@ -310,6 +316,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
                 if (renderer == null) renderer = pieceObject.AddComponent<SpriteRenderer>();
                 renderer.sprite = boardManager != null ? boardManager.GetTileSprite(data.tileTypes[i]) : null;
                 renderer.color = boardManager != null ? boardManager.GetTint(data.tileTypes[i]) : BoardManager.GetColor(data.tileTypes[i]);
+                renderer.sortingOrder = 0;
             }
 
             var resourceType = data.resourceTypes[i];
