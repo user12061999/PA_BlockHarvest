@@ -822,10 +822,10 @@ MonoBehaviour:
   adjacentWaterBounceHeight: 0.18
   adjacentWaterBounceSeconds: 0.24
   connectedWaterBounceStepDelay: 0.04
-  clearBounceHeight: 0.18
-  clearBounceSeconds: 0.12
-  clearTileSeconds: 0.08
-  clearStepDelay: 0.03
+  clearBounceHeight: 0.36
+  clearBounceSeconds: 0.24
+  clearTileSeconds: 0.1
+  clearStepDelay: 0.05
   clearCameraShakeSeconds: 0.5
   clearCameraShakeMagnitude: 0.3
   tileBreakEffectPrefab: {fileID: 3868148230245356851, guid: e6f7d310cddd24d2d88383f27970dd29, type: 3}
@@ -1924,19 +1924,19 @@ MonoBehaviour:
   loseSound: {fileID: 8300000, guid: 1a6f4b80425d06640aa87944cd816459, type: 3}
   winSound: {fileID: 8300000, guid: 19f6f9041c0e1dc41810422cf3a6f751, type: 3}
   bgSound: {fileID: 8300000, guid: ed09a50527a0fce4d88dc11e375118ac, type: 3}
-  placeBlockSound: {fileID: 8300000, guid: 12c4703e58f00d84aa772861f5c96059, type: 3}
-  invalidDropSound: {fileID: 8300000, guid: 16452b6e9a9878d42b9a0b3358afbd57, type: 3}
+  placeBlockSound: {fileID: 8300000, guid: 17adf8368b116e945b95c277fd4b853d, type: 3}
+  invalidDropSound: {fileID: 8300000, guid: 6316564f0bd6634468a42538a00d5f29, type: 3}
   pickupBlockSound: {fileID: 8300000, guid: bfd27398ae70d5a4e960e49fa9db07c3, type: 3}
-  spawnBlocksSound: {fileID: 8300000, guid: cbc2800a98bf52c4aab0754ccb75dc17, type: 3}
-  resourceGainSound: {fileID: 8300000, guid: b0e072ea2af656e43a7c9c7a7cf1fdb5, type: 3}
+  spawnBlocksSound: {fileID: 8300000, guid: 17adf8368b116e945b95c277fd4b853d, type: 3}
+  resourceGainSound: {fileID: 8300000, guid: d1f71737b3920094584af6608c48b07b, type: 3}
   splashSound: {fileID: 8300000, guid: c33a44e57fdc20c4495235e786bbb9e0, type: 3}
   dirt3x3Sound: {fileID: 8300000, guid: 251e395f07029564faf1f2b2e4ac335d, type: 3}
   animalEatSound: {fileID: 8300000, guid: 0d3e6157bd04f19498fa95841b7c052a, type: 3}
-  clearBoardSound: {fileID: 8300000, guid: 05ee10f756f03db408bb61924d2eae95, type: 3}
-  tileBreakSound: {fileID: 8300000, guid: 0d2493997208e7c4fb76c20ecd7a9427, type: 3}
-  resourceFlySound: {fileID: 8300000, guid: bfd27398ae70d5a4e960e49fa9db07c3, type: 3}
-  goalHitSound: {fileID: 8300000, guid: a7ba4b1409a27394c9418fd8be0d7f42, type: 3}
-  goalCompletedSound: {fileID: 8300000, guid: 8c70909608d18cd4bbc5ced02488a47d, type: 3}
+  clearBoardSound: {fileID: 8300000, guid: 8c70909608d18cd4bbc5ced02488a47d, type: 3}
+  tileBreakSound: {fileID: 0}
+  resourceFlySound: {fileID: 8300000, guid: 020b41384bdd3f741b592d78952e3b72, type: 3}
+  goalHitSound: {fileID: 0}
+  goalCompletedSound: {fileID: 8300000, guid: f689f51b21c3b0140b2a24eadd965a3f, type: 3}
   basketPickupSound: {fileID: 8300000, guid: d1f71737b3920094584af6608c48b07b, type: 3}
   truckMoveSound: {fileID: 8300000, guid: 58f8bb27ac00f434a9ca9a16a41373d4, type: 3}
   buttonClickSound: {fileID: 8300000, guid: 105455d38fd9ef041bdbab2fa528830f, type: 3}
