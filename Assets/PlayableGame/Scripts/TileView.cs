@@ -646,31 +646,67 @@ public sealed class TileView : MonoBehaviour
         return position + Vector3.up * resourceYOffset;
     }
 
-    private void AddResourceSpritePositions(int count)
+    private void AddCustomResourceSpritePositions(int count)
     {
         count = Mathf.Clamp(count, 1, 9);
 
-        if (count == 1)
+        switch (count)
         {
-            resourceSpritePositions.Add(new Vector3(0f, 0.06f, 0f));
-            return;
+            case 1:
+                resourceSpritePositions.Add(new Vector3(0f, 0.06f, 0f));
+                break;
+            case 2:
+                resourceSpritePositions.Add(new Vector3(-0.18f, 0.06f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.18f, 0.06f, 0f));
+                break;
+            case 3:
+                resourceSpritePositions.Add(new Vector3(0f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.22f, -0.08f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.22f, -0.08f, 0f));
+                break;
+            case 4:
+                AddSquareCorners(0.2f, 0.18f);
+                break;
+            case 5:
+                AddSquareCorners(0.27f, 0.25f);
+                resourceSpritePositions.Add(Vector3.zero);
+                break;
+            case 6:
+                AddResourceRow(0.28f, 0.18f);
+                AddResourceRow(0.28f, -0.18f);
+                break;
+            case 7:
+                AddResourceRow(0.28f, 0.28f);
+                resourceSpritePositions.Add(Vector3.zero);
+                AddResourceRow(0.28f, -0.28f);
+                break;
+            case 8:
+                AddResourceRow(0.28f, 0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0f, 0f));
+                resourceSpritePositions.Add(Vector3.zero);
+                AddResourceRow(0.28f, -0.28f);
+                break;
+            default:
+                AddResourceRow(0.28f, 0.28f);
+                AddResourceRow(0.28f, 0f);
+                AddResourceRow(0.28f, -0.28f);
+                break;
         }
+    }
 
-        var columns = Mathf.CeilToInt(Mathf.Sqrt(count));
-        var rows = Mathf.CeilToInt((float)count / columns);
-        var spacingX = columns <= 1 ? 0f : 0.576f / (columns - 1);
-        var spacingY = rows <= 1 ? 0f : 0.504f / (rows - 1);
-        var startX = -spacingX * (columns - 1) * 0.5f;
-        
-        // Tăng startY lên 0.1f (0.22f -> 0.32f) để kéo hàng trên cùng lên cao hơn
-        var startY = 0.32f;
+    private void AddSquareCorners(float x, float y)
+    {
+        resourceSpritePositions.Add(new Vector3(-x, y, 0f));
+        resourceSpritePositions.Add(new Vector3(x, y, 0f));
+        resourceSpritePositions.Add(new Vector3(-x, -y, 0f));
+        resourceSpritePositions.Add(new Vector3(x, -y, 0f));
+    }
 
-        for (var i = 0; i < count; i++)
-        {
-            var column = i % columns;
-            var row = i / columns;
-            resourceSpritePositions.Add(new Vector3(startX + column * spacingX, startY - row * spacingY, 0f));
-        }
+    private void AddResourceRow(float x, float y)
+    {
+        resourceSpritePositions.Add(new Vector3(-x, y, 0f));
+        resourceSpritePositions.Add(new Vector3(0f, y, 0f));
+        resourceSpritePositions.Add(new Vector3(x, y, 0f));
     }
 
     private void UpdateResourceSprites()
@@ -698,14 +734,11 @@ public sealed class TileView : MonoBehaviour
             return;
         }
 
-        AddResourceSpritePositions(cell.resourceValue);
-
-        var columns = Mathf.CeilToInt(Mathf.Sqrt(Mathf.Clamp(cell.resourceValue, 1, 9)));
-        var firstRow = 0 / columns; // Row của phần tử 0 luôn là 0
+        AddCustomResourceSpritePositions(cell.resourceValue);
 
         resourceRenderer.transform.localPosition = GetResourcePosition(resourceSpritePositions[0]);
         resourceRenderer.transform.localScale = GetAnimatedResourceScale();
-        resourceRenderer.sortingOrder = baseSortingOrder + firstRow;
+        resourceRenderer.sortingOrder = GetResourceSortingOrder(baseSortingOrder, resourceSpritePositions[0]);
 
         if (resourceSpritePositions.Count <= 1)
         {
@@ -717,7 +750,6 @@ public sealed class TileView : MonoBehaviour
 
         for (var i = 1; i < resourceSpritePositions.Count; i++)
         {
-            var row = i / columns;
             var marker = new GameObject(cell.resourceType + "_" + i);
             marker.transform.SetParent(root, false);
             marker.transform.localPosition = GetResourcePosition(resourceSpritePositions[i]);
@@ -727,10 +759,13 @@ public sealed class TileView : MonoBehaviour
             markerRenderer.sprite = board.GetTileSprite(cell.resourceType);
             markerRenderer.color = board.GetTint(cell.resourceType);
             markerRenderer.sortingLayerID = resourceRenderer.sortingLayerID;
-            
-            // Hàng dưới (row lớn hơn) có sortingOrder cao hơn hàng trên (row nhỏ hơn)
-            markerRenderer.sortingOrder = baseSortingOrder + row;
+            markerRenderer.sortingOrder = GetResourceSortingOrder(baseSortingOrder, resourceSpritePositions[i]);
         }
+    }
+
+    private int GetResourceSortingOrder(int baseSortingOrder, Vector3 position)
+    {
+        return baseSortingOrder + Mathf.RoundToInt((0.5f - position.y) * 10f);
     }
 
     private IEnumerator Pulse(Transform target)

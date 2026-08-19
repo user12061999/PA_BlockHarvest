@@ -1,7 +1,7 @@
 {
     "version": "7.2.0",
     "projectId": "f67ae32324e4e9245a2a316609bac5d0",
-    "applicationID": 32681,
+    "applicationID": 41603,
     "creativeName": "V01",
     "pgServer": "EU",
     "window": {
@@ -30120,6 +30120,10 @@
                     {
                         "name": "IsWideBlock",
                         "excluded": false
+                    },
+                    {
+                        "name": "RefillPlayableBlocks",
+                        "excluded": true
                     }
                 ]
             },
@@ -30225,6 +30229,14 @@
                     },
                     {
                         "name": "SetTileSpacing",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetSnappedTargetOrigin",
+                        "excluded": false
+                    },
+                    {
+                        "name": "GetTargetOriginFloat",
                         "excluded": false
                     }
                 ]
@@ -30956,6 +30968,14 @@
                     {
                         "name": "PlayGoalLandSound",
                         "excluded": false
+                    },
+                    {
+                        "name": "ShouldHoldPlayableBlocks#get",
+                        "excluded": false
+                    },
+                    {
+                        "name": "RefillPlayableBlocksAfterBoardClear",
+                        "excluded": true
                     }
                 ]
             },
@@ -31194,10 +31214,6 @@
                         "excluded": false
                     },
                     {
-                        "name": "AddResourceSpritePositions",
-                        "excluded": false
-                    },
-                    {
                         "name": "Pulse",
                         "excluded": false
                     },
@@ -31315,6 +31331,22 @@
                     },
                     {
                         "name": "ApplyPopupAlpha",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddCustomResourceSpritePositions",
+                        "excluded": false
+                    },
+                    {
+                        "name": "AddSquareCorners",
+                        "excluded": true
+                    },
+                    {
+                        "name": "AddResourceRow",
+                        "excluded": true
+                    },
+                    {
+                        "name": "GetResourceSortingOrder",
                         "excluded": false
                     }
                 ]

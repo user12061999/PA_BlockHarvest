@@ -1932,7 +1932,7 @@ MonoBehaviour:
   splashSound: {fileID: 8300000, guid: c33a44e57fdc20c4495235e786bbb9e0, type: 3}
   dirt3x3Sound: {fileID: 8300000, guid: 251e395f07029564faf1f2b2e4ac335d, type: 3}
   animalEatSound: {fileID: 8300000, guid: 0d3e6157bd04f19498fa95841b7c052a, type: 3}
-  clearBoardSound: {fileID: 8300000, guid: 8c70909608d18cd4bbc5ced02488a47d, type: 3}
+  clearBoardSound: {fileID: 0}
   tileBreakSound: {fileID: 0}
   resourceFlySound: {fileID: 8300000, guid: 020b41384bdd3f741b592d78952e3b72, type: 3}
   goalHitSound: {fileID: 0}
