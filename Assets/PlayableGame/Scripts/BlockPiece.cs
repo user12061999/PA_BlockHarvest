@@ -10,6 +10,8 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private const int TraySortingGroupOrder = 20;
     private const int DragSortingGroupOrder = 2000;
     private const int DragSortingOffset = 200;
+    private const int PlacementSnapRadius = 1;
+    private const float PlacementSnapMaxDistance = 0.75f;
 
     [SerializeField] private BlockData data;
 
@@ -144,7 +146,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
         pos.z = -3f;
         transform.position = pos;
 
-        targetOrigin = GetTargetOrigin();
+        targetOrigin = GetSnappedTargetOrigin(GetTargetOrigin());
         hasTarget = true;
         boardManager.ShowPreview(targetOrigin, data);
     }
@@ -163,10 +165,7 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
             return;
         }
 
-        if (!hasTarget)
-        {
-            targetOrigin = GetTargetOrigin();
-        }
+        targetOrigin = GetSnappedTargetOrigin(GetTargetOrigin());
 
         if (TryPlaceAt(targetOrigin))
         {
@@ -410,6 +409,58 @@ public sealed class BlockPiece : MonoBehaviour, IPointerDownHandler, IDragHandle
     private Vector2Int GetTargetOrigin()
     {
         return boardManager.WorldToCoordinate(transform.position) - targetAnchor;
+    }
+
+    private Vector2Int GetSnappedTargetOrigin(Vector2Int origin)
+    {
+        if (boardManager == null || boardManager.CanPlace(origin, data))
+        {
+            return origin;
+        }
+
+        var preciseOrigin = GetTargetOriginFloat();
+        var bestOrigin = origin;
+        var bestDistance = float.MaxValue;
+        for (var y = -PlacementSnapRadius; y <= PlacementSnapRadius; y++)
+        {
+            for (var x = -PlacementSnapRadius; x <= PlacementSnapRadius; x++)
+            {
+                var candidate = origin + new Vector2Int(x, y);
+                if (!boardManager.CanPlace(candidate, data))
+                {
+                    continue;
+                }
+
+                var distance = x * x + y * y;
+                if (distance > PlacementSnapRadius)
+                {
+                    continue;
+                }
+
+                var preciseDistance = ((Vector2)candidate - preciseOrigin).sqrMagnitude;
+                if (preciseDistance > PlacementSnapMaxDistance * PlacementSnapMaxDistance)
+                {
+                    continue;
+                }
+
+                if (preciseDistance < bestDistance)
+                {
+                    bestOrigin = candidate;
+                    bestDistance = preciseDistance;
+                }
+            }
+        }
+
+        return bestOrigin;
+    }
+
+    private Vector2 GetTargetOriginFloat()
+    {
+        var local = boardManager.transform.InverseTransformPoint(transform.position);
+        var boardSize = boardManager.BoardSize;
+        return new Vector2(
+            local.x / boardManager.CellStride + (boardSize.x - 1) * 0.5f,
+            local.y / boardManager.CellStride + (boardSize.y - 1) * 0.5f) - targetAnchor;
     }
 
     private void ResizeCollider()

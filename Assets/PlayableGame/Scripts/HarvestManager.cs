@@ -92,6 +92,7 @@ public sealed class HarvestManager : MonoBehaviour
     private bool boardHarvestInProgress;
     private int pendingHarvestAnimations;
     private int pendingFullBoardBonusPlacements;
+    private BoardManager pendingFullBoardBonusBoard;
     private bool fullBoardBonusInProgress;
     private bool fullBoardBonusDelayInProgress;
     private Coroutine fullBoardBonusDelayRoutine;
@@ -120,6 +121,11 @@ public sealed class HarvestManager : MonoBehaviour
         && (levelEnding
             || IsGoalComplete
             || (remainingPlacements == 0 && pendingFullBoardBonusPlacements <= 0 && !fullBoardBonusInProgress));
+    public bool ShouldHoldPlayableBlocks => pendingAnimalActions == 0
+        && (boardHarvestInProgress
+            || pendingFullBoardBonusPlacements > 0
+            || fullBoardBonusInProgress
+            || fullBoardBonusDelayInProgress);
 
     private void Awake()
     {
@@ -147,6 +153,7 @@ public sealed class HarvestManager : MonoBehaviour
         boardHarvestInProgress = false;
         pendingHarvestAnimations = 0;
         pendingFullBoardBonusPlacements = 0;
+        pendingFullBoardBonusBoard = null;
         fullBoardBonusInProgress = false;
         fullBoardBonusDelayInProgress = false;
         if (fullBoardBonusDelayRoutine != null)
@@ -230,17 +237,23 @@ public sealed class HarvestManager : MonoBehaviour
             pendingFullBoardBonusPlacements = Mathf.Max(
                 pendingFullBoardBonusPlacements,
                 Mathf.Max(0, extraPlacementsOnFullBoard));
-            if (pendingFullBoardBonusPlacements > 0 && !fullBoardBonusInProgress && !fullBoardBonusDelayInProgress)
+            pendingFullBoardBonusBoard = board;
+            if (pendingFullBoardBonusPlacements > 0)
             {
-                if (Application.isPlaying)
+                if (!fullBoardBonusInProgress && !fullBoardBonusDelayInProgress)
                 {
-                    fullBoardBonusDelayInProgress = true;
-                    fullBoardBonusDelayRoutine = StartCoroutine(StartFullBoardBonusAfterDelay());
+                    if (Application.isPlaying)
+                    {
+                        fullBoardBonusDelayInProgress = true;
+                        fullBoardBonusDelayRoutine = StartCoroutine(StartFullBoardBonusAfterDelay());
+                    }
+                    else
+                    {
+                        TryStartFullBoardBonus();
+                    }
                 }
-                else
-                {
-                    TryStartFullBoardBonus();
-                }
+
+                return;
             }
         }
         else if (visibleGoalComplete)
@@ -385,6 +398,21 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         UpdateUI();
+        RefillPlayableBlocksAfterBoardClear();
+    }
+
+    private void RefillPlayableBlocksAfterBoardClear()
+    {
+        if (levelEnding || IsGoalComplete || remainingPlacements <= 0)
+        {
+            return;
+        }
+
+        var blockManager = FindObjectOfType<BlockManager>();
+        if (blockManager != null)
+        {
+            blockManager.RefillPlayableBlocks();
+        }
     }
 
     private void AddHarvest(TileType resourceType, int value)
@@ -724,7 +752,9 @@ public sealed class HarvestManager : MonoBehaviour
         }
 
         var bonusPlacements = pendingFullBoardBonusPlacements;
+        var bonusBoard = pendingFullBoardBonusBoard;
         pendingFullBoardBonusPlacements = 0;
+        pendingFullBoardBonusBoard = null;
         fullBoardBonusInProgress = true;
 
         if (playableUI == null)
@@ -735,11 +765,11 @@ public sealed class HarvestManager : MonoBehaviour
         if (playableUI != null && Application.isPlaying)
         {
             PlayFullBoardBonusSound();
-            playableUI.PlayFullBoardMoveBonus(bonusPlacements, () => CompleteFullBoardBonus(bonusPlacements));
+            playableUI.PlayFullBoardMoveBonus(bonusPlacements, () => CompleteFullBoardBonus(bonusBoard, bonusPlacements));
         }
         else
         {
-            CompleteFullBoardBonus(bonusPlacements);
+            CompleteFullBoardBonus(bonusBoard, bonusPlacements);
         }
 
         return true;
@@ -769,11 +799,23 @@ public sealed class HarvestManager : MonoBehaviour
         TryStartFullBoardBonus();
     }
 
-    private void CompleteFullBoardBonus(int bonusPlacements)
+    private void CompleteFullBoardBonus(BoardManager board, int bonusPlacements)
     {
+        if (board == null || board != currentBoard)
+        {
+            fullBoardBonusInProgress = false;
+            UpdateUI();
+            return;
+        }
+
         remainingPlacements += Mathf.Max(0, bonusPlacements);
         fullBoardBonusInProgress = false;
         UpdateUI();
+
+        if (board.IsFull())
+        {
+            HarvestBoard(board);
+        }
     }
 
     private void SpawnResourceGoals()

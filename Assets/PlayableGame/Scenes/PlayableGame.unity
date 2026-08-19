@@ -1936,7 +1936,7 @@ MonoBehaviour:
   tileBreakSound: {fileID: 0}
   resourceFlySound: {fileID: 8300000, guid: 020b41384bdd3f741b592d78952e3b72, type: 3}
   goalHitSound: {fileID: 0}
-  goalCompletedSound: {fileID: 8300000, guid: f689f51b21c3b0140b2a24eadd965a3f, type: 3}
+  goalCompletedSound: {fileID: 0}
   basketPickupSound: {fileID: 8300000, guid: d1f71737b3920094584af6608c48b07b, type: 3}
   truckMoveSound: {fileID: 8300000, guid: 58f8bb27ac00f434a9ca9a16a41373d4, type: 3}
   buttonClickSound: {fileID: 8300000, guid: 105455d38fd9ef041bdbab2fa528830f, type: 3}

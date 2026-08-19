@@ -252,12 +252,17 @@ private bool IsWideBlock(BlockData blockData, int minWidth = 4)
     public void RemoveBlock(BlockPiece blockPiece)
     {
         HideTutorial();
-        if (harvestManager != null && harvestManager.IsLevelOver)
+        if (harvestManager != null && (harvestManager.IsLevelOver || harvestManager.ShouldHoldPlayableBlocks))
         {
             ClearBlocks();
             return;
         }
 
+        CreatePlayableBlocks();
+    }
+
+    public void RefillPlayableBlocks()
+    {
         CreatePlayableBlocks();
     }
 
