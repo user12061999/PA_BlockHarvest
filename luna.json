@@ -30123,7 +30123,7 @@
                     },
                     {
                         "name": "RefillPlayableBlocks",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -30975,7 +30975,7 @@
                     },
                     {
                         "name": "RefillPlayableBlocksAfterBoardClear",
-                        "excluded": true
+                        "excluded": false
                     }
                 ]
             },
@@ -31336,14 +31336,6 @@
                     {
                         "name": "AddCustomResourceSpritePositions",
                         "excluded": false
-                    },
-                    {
-                        "name": "AddSquareCorners",
-                        "excluded": true
-                    },
-                    {
-                        "name": "AddResourceRow",
-                        "excluded": true
                     },
                     {
                         "name": "GetResourceSortingOrder",

@@ -665,48 +665,57 @@ public sealed class TileView : MonoBehaviour
                 resourceSpritePositions.Add(new Vector3(0.22f, -0.08f, 0f));
                 break;
             case 4:
-                AddSquareCorners(0.2f, 0.18f);
+                resourceSpritePositions.Add(new Vector3(-0.2f, 0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.2f, 0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.2f, -0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.2f, -0.18f, 0f));
                 break;
             case 5:
-                AddSquareCorners(0.27f, 0.25f);
+                resourceSpritePositions.Add(new Vector3(-0.27f, 0.25f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.27f, 0.25f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.27f, -0.25f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.27f, -0.25f, 0f));
                 resourceSpritePositions.Add(Vector3.zero);
                 break;
             case 6:
-                AddResourceRow(0.28f, 0.18f);
-                AddResourceRow(0.28f, -0.18f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, 0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, 0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.28f, -0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, -0.18f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, -0.18f, 0f));
                 break;
             case 7:
-                AddResourceRow(0.28f, 0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, 0.28f, 0f));
                 resourceSpritePositions.Add(Vector3.zero);
-                AddResourceRow(0.28f, -0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, -0.28f, 0f));
                 break;
             case 8:
-                AddResourceRow(0.28f, 0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, 0.28f, 0f));
                 resourceSpritePositions.Add(new Vector3(-0.28f, 0f, 0f));
                 resourceSpritePositions.Add(Vector3.zero);
-                AddResourceRow(0.28f, -0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, -0.28f, 0f));
                 break;
             default:
-                AddResourceRow(0.28f, 0.28f);
-                AddResourceRow(0.28f, 0f);
-                AddResourceRow(0.28f, -0.28f);
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, 0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.28f, 0f, 0f));
+                resourceSpritePositions.Add(Vector3.zero);
+                resourceSpritePositions.Add(new Vector3(0.28f, 0f, 0f));
+                resourceSpritePositions.Add(new Vector3(-0.28f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0f, -0.28f, 0f));
+                resourceSpritePositions.Add(new Vector3(0.28f, -0.28f, 0f));
                 break;
         }
-    }
-
-    private void AddSquareCorners(float x, float y)
-    {
-        resourceSpritePositions.Add(new Vector3(-x, y, 0f));
-        resourceSpritePositions.Add(new Vector3(x, y, 0f));
-        resourceSpritePositions.Add(new Vector3(-x, -y, 0f));
-        resourceSpritePositions.Add(new Vector3(x, -y, 0f));
-    }
-
-    private void AddResourceRow(float x, float y)
-    {
-        resourceSpritePositions.Add(new Vector3(-x, y, 0f));
-        resourceSpritePositions.Add(new Vector3(0f, y, 0f));
-        resourceSpritePositions.Add(new Vector3(x, y, 0f));
     }
 
     private void UpdateResourceSprites()
